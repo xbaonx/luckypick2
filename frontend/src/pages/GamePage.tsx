@@ -184,6 +184,34 @@ export default function GamePage() {
                 `${user.balanceUsdt.toFixed(2)} USDT`
               }
             </div>
+
+            {/* Mode banners & CTAs */}
+            {mode === 'fun' && (
+              <div className="ml-4 hidden md:flex items-center space-x-3">
+                <span className="text-sm bg-white/10 px-3 py-1 rounded">
+                  You're in Fun mode (Demo)
+                </span>
+                <button
+                  onClick={() => navigate('/game/usdt')}
+                  className="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
+                >
+                  Play with real USDT
+                </button>
+              </div>
+            )}
+            {mode === 'usdt' && user.type === 'registered' && user.balanceUsdt < Math.max(1, defaultBetAmount) && (
+              <div className="ml-4 hidden md:flex items-center space-x-3">
+                <span className="text-sm bg-red-500/20 text-red-200 px-3 py-1 rounded">
+                  Low USDT balance
+                </span>
+                <button
+                  onClick={() => navigate('/deposit')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded"
+                >
+                  Deposit USDT
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
