@@ -4,12 +4,15 @@
 FROM node:18-bullseye AS deps
 WORKDIR /app
 
+# Install build tools for native modules (e.g., sqlite3)
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # Install dependencies separately for backend and frontend
 COPY backend/package*.json ./backend/
 COPY frontend/package*.json ./frontend/
 
-RUN cd backend && npm ci \
- && cd /app/frontend && npm ci
+RUN cd backend && npm install \
+ && cd /app/frontend && npm install
 
 # Build both apps and prune dev deps from backend
 FROM deps AS build
