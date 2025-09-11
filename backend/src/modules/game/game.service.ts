@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { GameHistory, GameMode } from '../../entities/game-history.entity';
 import { UserService } from '../user/user.service';
 import { PlayGameDto } from './dto/play-game.dto';
+import { UserType } from '../../entities/user.entity';
 
 @Injectable()
 export class GameService {
@@ -20,6 +21,11 @@ export class GameService {
     const user = await this.userService.findById(userId);
     if (!user) {
       throw new Error('User not found');
+    }
+
+    // Enforce registration for USDT mode
+    if (mode === GameMode.USDT && user.type !== UserType.REGISTERED) {
+      throw new Error('Only registered users can play USDT mode');
     }
 
     // Calculate total bet

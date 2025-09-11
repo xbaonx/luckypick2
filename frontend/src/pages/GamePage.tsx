@@ -32,10 +32,20 @@ export default function GamePage() {
   useEffect(() => {
     if (!user) {
       navigate('/login')
+    } else if (mode === 'usdt' && user.type !== 'registered') {
+      toast.error('Please register to play with USDT')
+      navigate('/register')
     }
-  }, [user, navigate])
+  }, [user, mode, navigate])
 
   const handlePlay = async () => {
+    // Guard: require registered account for USDT mode
+    if (mode === 'usdt' && user!.type !== 'registered') {
+      toast.error('Please register to play with USDT')
+      navigate('/register')
+      return
+    }
+
     const bets = getBets()
     if (bets.length === 0) {
       toast.error('Please select at least one number')
