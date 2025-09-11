@@ -1,13 +1,9 @@
 services:
   - type: web
     name: luckypick2
-    env: node
+    env: docker
     region: oregon
     plan: free
-    buildCommand: |
-      cd backend && npm install && npm run build &&
-      cd ../frontend && npm install && npm run build
-    startCommand: cd backend && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
