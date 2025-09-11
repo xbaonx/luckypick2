@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 export default function GamePage() {
   const navigate = useNavigate()
   const { mode: routeModeParam } = useParams()
-  const { user, updateBalance } = useAuthStore()
+  const { user, updateBalance, loginAsGuest } = useAuthStore()
   const { 
     mode, 
     selectedNumbers, 
@@ -39,12 +39,25 @@ export default function GamePage() {
     }
 
     if (!user) {
-      navigate('/login')
+      if (routeMode === 'fun') {
+        // Auto-create guest session for Fun mode
+        (async () => {
+          try {
+            await loginAsGuest()
+            toast.success('Welcome! You have 1000 FunCoins to play with!')
+          } catch {
+            toast.error('Failed to start guest session')
+          }
+        })()
+      } else {
+        toast.error('Please register to play with USDT')
+        navigate('/register')
+      }
     } else if (routeMode === 'usdt' && user.type !== 'registered') {
       toast.error('Please register to play with USDT')
       navigate('/register')
     }
-  }, [user, routeModeParam, mode, setMode, navigate])
+  }, [user, routeModeParam, mode, setMode, navigate, loginAsGuest])
 
   const handlePlay = async () => {
     // Guard: require registered account for USDT mode
