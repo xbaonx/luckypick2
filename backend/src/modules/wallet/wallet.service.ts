@@ -10,17 +10,31 @@ export class WalletService {
   private provider: ethers.JsonRpcProvider;
   private adminWallet: ethers.HDNodeWallet;
   private seedPhrase: string;
+  private dataDir: string;
 
   constructor(private configService: ConfigService) {
     this.provider = new ethers.JsonRpcProvider(
       this.configService.get<string>('RPC_URL')
     );
+    // Determine data directory for persistent storage
+    // Priority: DATA_DIR env -> /mnt/data (if exists) -> /data
+    const configuredDir = this.configService.get<string>('DATA_DIR');
+    this.dataDir = configuredDir || (fs.existsSync('/mnt/data') ? '/mnt/data' : '/data');
     this.initializeWallet();
   }
 
   private initializeWallet() {
     try {
-      const seedPath = '/data/seed.enc';
+      // Resolve seed path with fallback
+      const preferredSeedPath = path.join(this.dataDir, 'seed.enc');
+      let seedPath = preferredSeedPath;
+      if (!fs.existsSync(seedPath)) {
+        const altPath = path.join('/mnt/data', 'seed.enc');
+        if (fs.existsSync(altPath)) {
+          seedPath = altPath;
+        }
+      }
+
       if (fs.existsSync(seedPath)) {
         const encryptedSeed = fs.readFileSync(seedPath, 'utf8');
         const secretKey = this.configService.get<string>('SECRET_KEY');
@@ -47,12 +61,12 @@ export class WalletService {
     const secretKey = this.configService.get<string>('SECRET_KEY');
     const encryptedSeed = this.encryptSeed(seedPhrase, secretKey);
     
-    const dataDir = '/data';
+    const dataDir = this.dataDir;
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
     
-    fs.writeFileSync('/data/seed.enc', encryptedSeed);
+    fs.writeFileSync(path.join(dataDir, 'seed.enc'), encryptedSeed);
     this.seedPhrase = seedPhrase;
     this.adminWallet = ethers.Wallet.fromPhrase(seedPhrase).connect(this.provider);
   }
