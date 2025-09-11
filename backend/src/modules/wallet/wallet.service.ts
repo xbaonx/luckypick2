@@ -8,7 +8,7 @@ import * as path from 'path';
 @Injectable()
 export class WalletService {
   private provider: ethers.JsonRpcProvider;
-  private adminWallet: ethers.Wallet;
+  private adminWallet: ethers.HDNodeWallet;
   private seedPhrase: string;
 
   constructor(private configService: ConfigService) {
