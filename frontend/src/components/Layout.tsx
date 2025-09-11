@@ -14,7 +14,7 @@ export default function Layout() {
     <div className="min-h-screen">
       <nav className="glass-effect text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex flex-wrap items-center justify-between gap-2 py-2">
             <div className="flex items-center space-x-8">
               <Link to="/" className="text-2xl font-bold text-yellow-400">
                 🎰 LuckyPick2
@@ -35,7 +35,7 @@ export default function Layout() {
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 flex-wrap">
               {user ? (
                 <>
                   <div className="flex items-center space-x-4 text-sm">
@@ -53,7 +53,7 @@ export default function Layout() {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition"
+                    className="bg-red-500 hover:bg-red-600 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition"
                   >
                     Logout
                   </button>
@@ -62,13 +62,13 @@ export default function Layout() {
                 <>
                   <Link
                     to="/login"
-                    className="bg-primary hover:bg-primary/80 px-4 py-2 rounded-lg transition"
+                    className="bg-primary hover:bg-primary/80 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-secondary hover:bg-secondary/80 px-4 py-2 rounded-lg transition"
+                    className="bg-secondary hover:bg-secondary/80 px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition"
                   >
                     Register
                   </Link>

@@ -11,12 +11,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .number-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 0.5rem;
+}
+
+/* Mobile: fewer columns for better tap targets */
+@media (max-width: 640px) {
+  .number-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem;
+  }
 }
 
 .glass-effect {

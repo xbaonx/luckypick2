@@ -165,16 +165,16 @@ export default function GamePage() {
 
   return (
     <div className="text-white">
-      <div className="glass-effect rounded-2xl p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
+      <div className="glass-effect rounded-2xl p-4 sm:p-6 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h1 className="text-3xl font-bold">Lucky Pick 2</h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Mode Selector */}
             <div className="flex bg-white/10 rounded-lg p-1">
               <button
                 onClick={() => navigate('/game/fun')}
                 disabled={isPlaying}
-                className={`px-4 py-2 rounded-lg transition ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition ${
                   mode === 'fun' ? 'bg-yellow-500 text-black' : 'text-white hover:bg-white/10'
                 }`}
               >
@@ -184,7 +184,7 @@ export default function GamePage() {
                 <button
                   onClick={() => navigate('/game/usdt')}
                   disabled={isPlaying}
-                  className={`px-4 py-2 rounded-lg transition ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg transition ${
                     mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
                   }`}
                 >
@@ -194,7 +194,7 @@ export default function GamePage() {
             </div>
 
             {/* Balance Display */}
-            <div className="text-lg font-bold">
+            <div className="text-sm sm:text-lg font-bold">
               Balance: {mode === 'fun' ? 
                 `${user.balanceFun.toFixed(0)} FunCoins` : 
                 `${user.balanceUsdt.toFixed(2)} USDT`
@@ -232,7 +232,7 @@ export default function GamePage() {
         </div>
 
         {/* Game Info */}
-        <div className="grid grid-cols-3 gap-4 mb-4 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 text-center">
           <div className="bg-white/10 rounded-lg p-3">
             <div className="text-sm opacity-75">Win Rate</div>
             <div className="text-xl font-bold">
@@ -278,7 +278,7 @@ export default function GamePage() {
       </div>
 
       {/* Number Grid */}
-      <div className="glass-effect rounded-2xl p-6 mb-6">
+      <div className="glass-effect rounded-2xl p-4 sm:p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">Select Your Lucky Numbers</h2>
         <div className="number-grid">
           {renderNumberGrid()}
@@ -286,26 +286,26 @@ export default function GamePage() {
       </div>
 
       {/* Controls */}
-      <div className="glass-effect rounded-2xl p-6">
-        <div className="flex justify-between items-center">
-          <div className="text-lg">
+      <div className="glass-effect rounded-2xl p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="text-sm sm:text-lg">
             Selected: <span className="font-bold text-yellow-400">{selectedNumbers.length}</span> numbers | 
             Total Bet: <span className="font-bold text-green-400">
               {getBets().reduce((sum, bet) => sum + bet.amount, 0)} {mode === 'fun' ? 'FunCoins' : 'USDT'}
             </span>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4 w-full sm:w-auto">
             <button
               onClick={handleClearBets}
               disabled={isPlaying || selectedNumbers.length === 0}
-              className="bg-gray-500 hover:bg-gray-600 disabled:opacity-50 px-6 py-2 rounded-lg transition"
+              className="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 disabled:opacity-50 px-6 py-2 rounded-lg transition"
             >
               Clear
             </button>
             <button
               onClick={handlePlay}
               disabled={isPlaying || selectedNumbers.length === 0}
-              className="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-8 py-2 rounded-lg font-bold transition transform hover:scale-105"
+              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 disabled:opacity-50 px-8 py-2 rounded-lg font-bold transition transform hover:scale-105"
             >
               {isPlaying ? 'Playing...' : 'PLAY'}
             </button>
