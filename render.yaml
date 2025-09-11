@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: luckypick2
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      cd backend && npm install && npm run build &&
+      cd ../frontend && npm install && npm run build
+    startCommand: cd backend && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /data/luckypick2.db
+      - key: RPC_URL
+        value: https://bsc-dataseed.binance.org/
+      - key: ADMIN_ADDRESS
+        fromGroup: luckypick2
+      - key: TOKEN_ADDRESS
+        value: 0x55d398326f99059fF775485246999027B3197955
+      - key: SECRET_KEY
+        fromGroup: luckypick2
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MOONPAY_API_KEY
+        fromGroup: luckypick2
+      - key: MOONPAY_SECRET_KEY
+        fromGroup: luckypick2
+      - key: ADMIN_EMAIL
+        value: admin@luckypick2.com
+      - key: ADMIN_PASSWORD
+        fromGroup: luckypick2
+      - key: PORT
+        value: 3000
+    disk:
+      name: luckypick2-data
+      mountPath: /data
+      sizeGB: 1
+
+envVarGroups:
+  - name: luckypick2
+    envVars:
+      - key: ADMIN_ADDRESS
+        value: YOUR_ADMIN_WALLET_ADDRESS
+      - key: SECRET_KEY
+        value: YOUR_32_CHAR_SECRET_KEY_FOR_ENCRYPTION
+      - key: MOONPAY_API_KEY
+        value: YOUR_MOONPAY_API_KEY
+      - key: MOONPAY_SECRET_KEY
+        value: YOUR_MOONPAY_SECRET_KEY
+      - key: ADMIN_PASSWORD
+        value: YOUR_SECURE_ADMIN_PASSWORD
