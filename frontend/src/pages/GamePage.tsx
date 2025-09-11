@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useGameStore } from '../stores/gameStore'
 import api from '../services/api'
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 
 export default function GamePage() {
   const navigate = useNavigate()
+  const { mode: routeModeParam } = useParams()
   const { user, updateBalance } = useAuthStore()
   const { 
     mode, 
@@ -30,13 +31,20 @@ export default function GamePage() {
   const [showResult, setShowResult] = useState(false)
 
   useEffect(() => {
+    // Resolve mode from route; default to 'fun' if invalid
+    const routeMode = routeModeParam === 'usdt' ? 'usdt' : 'fun'
+    // Keep store mode in sync with route
+    if (mode !== routeMode) {
+      setMode(routeMode)
+    }
+
     if (!user) {
       navigate('/login')
-    } else if (mode === 'usdt' && user.type !== 'registered') {
+    } else if (routeMode === 'usdt' && user.type !== 'registered') {
       toast.error('Please register to play with USDT')
       navigate('/register')
     }
-  }, [user, mode, navigate])
+  }, [user, routeModeParam, mode, setMode, navigate])
 
   const handlePlay = async () => {
     // Guard: require registered account for USDT mode
@@ -148,7 +156,7 @@ export default function GamePage() {
             {/* Mode Selector */}
             <div className="flex bg-white/10 rounded-lg p-1">
               <button
-                onClick={() => setMode('fun')}
+                onClick={() => navigate('/game/fun')}
                 disabled={isPlaying}
                 className={`px-4 py-2 rounded-lg transition ${
                   mode === 'fun' ? 'bg-yellow-500 text-black' : 'text-white hover:bg-white/10'
@@ -158,7 +166,7 @@ export default function GamePage() {
               </button>
               {user.type === 'registered' && (
                 <button
-                  onClick={() => setMode('usdt')}
+                  onClick={() => navigate('/game/usdt')}
                   disabled={isPlaying}
                   className={`px-4 py-2 rounded-lg transition ${
                     mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'

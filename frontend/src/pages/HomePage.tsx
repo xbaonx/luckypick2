@@ -16,14 +16,14 @@ export default function HomePage() {
         return
       }
     }
-    navigate('/game')
+    navigate('/game/fun')
   }
 
   const handlePlayWithUSDT = () => {
     if (!user || user.type === 'guest') {
       navigate('/register')
     } else {
-      navigate('/game')
+      navigate('/game/usdt')
     }
   }
 

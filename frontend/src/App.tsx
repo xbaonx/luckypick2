@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import Layout from './components/Layout'
-import HomePage from './pages/HomePage'
 import GamePage from './pages/GamePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -29,8 +28,10 @@ function App() {
       
       {/* Player routes */}
       <Route path="/" element={<Layout />}>
-        <Route index element={<HomePage />} />
-        <Route path="game" element={<GamePage />} />
+        <Route index element={<Navigate to="/game/fun" />} />
+        {/* Game routes: explicit modes */}
+        <Route path="game" element={<Navigate to="/game/fun" />} />
+        <Route path="game/:mode" element={<GamePage />} />
         <Route path="profile" element={user ? <ProfilePage /> : <Navigate to="/login" />} />
         <Route path="deposit" element={user?.type === 'registered' ? <DepositPage /> : <Navigate to="/register" />} />
         <Route path="withdraw" element={user?.type === 'registered' ? <WithdrawPage /> : <Navigate to="/register" />} />
