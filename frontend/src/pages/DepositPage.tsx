@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import type React from 'react'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 
 export default function DepositPage() {
   const { user } = useAuthStore()
   const [amount, setAmount] = useState('100')
-  const [loading, setLoading] = useState(false)
+  const [loading] = useState(false)
 
   const handleMoonPayDeposit = () => {
     if (!user?.walletAddress) {
@@ -63,7 +64,7 @@ export default function DepositPage() {
           <input
             type="number"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
             className="mt-2 w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
             placeholder="Enter custom amount"
             min="30"

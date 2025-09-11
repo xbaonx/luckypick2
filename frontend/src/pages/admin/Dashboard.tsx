@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../services/api'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function AdminDashboard() {
   const { data: stats, isLoading } = useQuery({

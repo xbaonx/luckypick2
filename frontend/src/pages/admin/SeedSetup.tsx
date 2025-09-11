@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -66,7 +67,7 @@ export default function AdminSeedSetup() {
             <div className="relative">
               <textarea
                 value={seedPhrase}
-                onChange={(e) => setSeedPhrase(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSeedPhrase(e.target.value)}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400 font-mono"
                 rows={3}
                 placeholder="Enter your seed phrase..."
@@ -74,7 +75,7 @@ export default function AdminSeedSetup() {
                 style={{ 
                   WebkitTextSecurity: showSeed ? 'none' : 'disc',
                   fontFamily: showSeed ? 'monospace' : 'inherit'
-                }}
+                } as React.CSSProperties & { WebkitTextSecurity?: string }}
               />
               <button
                 type="button"
@@ -92,7 +93,7 @@ export default function AdminSeedSetup() {
             </label>
             <textarea
               value={confirmSeed}
-              onChange={(e) => setConfirmSeed(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setConfirmSeed(e.target.value)}
               className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400 font-mono"
               rows={3}
               placeholder="Re-enter your seed phrase..."
@@ -100,7 +101,7 @@ export default function AdminSeedSetup() {
               style={{ 
                 WebkitTextSecurity: showSeed ? 'none' : 'disc',
                 fontFamily: showSeed ? 'monospace' : 'inherit'
-              }}
+              } as React.CSSProperties & { WebkitTextSecurity?: string }}
             />
           </div>
 

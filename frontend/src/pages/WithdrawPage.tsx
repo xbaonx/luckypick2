@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
@@ -24,7 +24,7 @@ export default function WithdrawPage() {
       const response = await api.post('/withdraw/request', data)
       return response.data
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Withdrawal request submitted successfully')
       queryClient.invalidateQueries({ queryKey: ['withdrawRequests'] })
       // Update balance immediately
