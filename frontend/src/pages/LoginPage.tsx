@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/'
   const { login, loginAsGuest } = useAuthStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -16,7 +18,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success('Welcome back!')
-      navigate('/')
+      navigate(redirect)
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Login failed')
     } finally {
@@ -29,7 +31,7 @@ export default function LoginPage() {
     try {
       await loginAsGuest()
       toast.success('Welcome! You have 1000 FunCoins to play with!')
-      navigate('/game')
+      navigate('/game/fun')
     } catch (error) {
       toast.error('Failed to start guest session')
     } finally {

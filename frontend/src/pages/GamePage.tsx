@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 export default function GamePage() {
   const navigate = useNavigate()
   const { mode: routeModeParam } = useParams()
-  const { user, updateBalance, loginAsGuest } = useAuthStore()
+  const { user, token, updateBalance, loginAsGuest } = useAuthStore()
   const { 
     mode, 
     selectedNumbers, 
@@ -41,29 +41,32 @@ export default function GamePage() {
     if (!user) {
       if (routeMode === 'fun') {
         // Auto-create guest session for Fun mode
-        (async () => {
-          try {
-            await loginAsGuest()
-            toast.success('Welcome! You have 1000 FunCoins to play with!')
-          } catch {
-            toast.error('Failed to start guest session')
-          }
-        })()
+        // Only do this if there's no existing token (avoid overriding registered session during hydration)
+        if (!token) {
+          (async () => {
+            try {
+              await loginAsGuest()
+              toast.success('Welcome! You have 1000 FunCoins to play with!')
+            } catch {
+              toast.error('Failed to start guest session')
+            }
+          })()
+        }
       } else {
         toast.error('Please register to play with USDT')
-        navigate('/register')
+        navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
       }
     } else if (routeMode === 'usdt' && user.type !== 'registered') {
       toast.error('Please register to play with USDT')
-      navigate('/register')
+      navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
     }
-  }, [user, routeModeParam, mode, setMode, navigate, loginAsGuest])
+  }, [user, token, routeModeParam, mode, setMode, navigate, loginAsGuest])
 
   const handlePlay = async () => {
     // Guard: require registered account for USDT mode
     if (mode === 'usdt' && user!.type !== 'registered') {
       toast.error('Please register to play with USDT')
-      navigate('/register')
+      navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
       return
     }
 

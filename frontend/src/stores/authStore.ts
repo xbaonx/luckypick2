@@ -35,7 +35,11 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post('/auth/login', { email, password })
           const { access_token, user } = response.data
-          set({ token: access_token, user, isLoading: false })
+          const normalizedUser = {
+            ...user,
+            type: user?.type ?? (user?.email ? 'registered' : 'guest'),
+          }
+          set({ token: access_token, user: normalizedUser, isLoading: false })
           api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
         } catch (error) {
           set({ isLoading: false })
@@ -48,7 +52,11 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post('/auth/register', { email, password })
           const { access_token, user } = response.data
-          set({ token: access_token, user, isLoading: false })
+          const normalizedUser = {
+            ...user,
+            type: user?.type ?? (user?.email ? 'registered' : 'guest'),
+          }
+          set({ token: access_token, user: normalizedUser, isLoading: false })
           api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
         } catch (error) {
           set({ isLoading: false })
@@ -61,7 +69,11 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post('/auth/guest')
           const { access_token, user } = response.data
-          set({ token: access_token, user, isLoading: false })
+          const normalizedUser = {
+            ...user,
+            type: user?.type ?? (user?.email ? 'registered' : 'guest'),
+          }
+          set({ token: access_token, user: normalizedUser, isLoading: false })
           api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
         } catch (error) {
           set({ isLoading: false })
