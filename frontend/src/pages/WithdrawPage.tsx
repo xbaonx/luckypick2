@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type React from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
@@ -70,7 +71,7 @@ export default function WithdrawPage() {
             <input
               type="number"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
               placeholder="Enter amount to withdraw"
               min="10"
@@ -88,7 +89,7 @@ export default function WithdrawPage() {
             <input
               type="text"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
               placeholder="Enter your wallet address (BEP-20)"
               required

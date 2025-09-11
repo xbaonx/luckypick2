@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import type React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useGameStore } from '../stores/gameStore'
@@ -41,7 +42,7 @@ export default function GamePage() {
       return
     }
 
-    const totalBet = bets.reduce((sum, bet) => sum + bet.amount, 0)
+    const totalBet = bets.reduce((sum: number, bet: { amount: number }) => sum + bet.amount, 0)
     
     // Check balance
     if (mode === 'fun' && totalBet > user!.balanceFun) {
@@ -57,8 +58,8 @@ export default function GamePage() {
     try {
       const response = await api.post('/game/play', {
         mode,
-        numbers: bets.map(b => b.number),
-        betAmounts: bets.map(b => b.amount)
+        numbers: bets.map((b: { number: number; amount: number }) => b.number),
+        betAmounts: bets.map((b: { number: number; amount: number }) => b.amount)
       })
 
       const { result, winAmount, isWin, newBalance } = response.data
@@ -113,8 +114,8 @@ export default function GamePage() {
             <input
               type="number"
               value={betAmount}
-              onChange={(e) => setBetAmount(i, Number(e.target.value))}
-              onClick={(e) => e.stopPropagation()}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBetAmount(i, Number(e.target.value))}
+              onClick={(e: React.MouseEvent<HTMLInputElement>) => e.stopPropagation()}
               className="mt-1 w-full bg-black/30 text-white text-xs px-1 py-0.5 rounded"
               min="1"
               max="1000"
@@ -187,7 +188,7 @@ export default function GamePage() {
             <input
               type="number"
               value={defaultBetAmount}
-              onChange={(e) => setDefaultBetAmount(Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDefaultBetAmount(Number(e.target.value))}
               disabled={isPlaying}
               className="w-full bg-black/30 text-white text-xl font-bold px-2 py-1 rounded mt-1"
               min="1"
