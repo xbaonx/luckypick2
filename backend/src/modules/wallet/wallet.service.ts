@@ -76,10 +76,11 @@ export class WalletService {
       throw new Error('Seed phrase not initialized');
     }
     
-    const hdNode = ethers.HDNodeWallet.fromPhrase(this.seedPhrase);
+    // Use Mnemonic + HDNodeWallet.fromMnemonic to derive from ROOT using absolute path
     const path = `m/44'/60'/0'/0/${index}`;
-    const childNode = hdNode.derivePath(path);
-    return childNode.address;
+    const mnemonic = ethers.Mnemonic.fromPhrase(this.seedPhrase);
+    const walletAtIndex = ethers.HDNodeWallet.fromMnemonic(mnemonic, path);
+    return walletAtIndex.address;
   }
 
   async derivePrivateKey(index: number): Promise<string> {
@@ -87,10 +88,10 @@ export class WalletService {
       throw new Error('Seed phrase not initialized');
     }
     
-    const hdNode = ethers.HDNodeWallet.fromPhrase(this.seedPhrase);
     const path = `m/44'/60'/0'/0/${index}`;
-    const childNode = hdNode.derivePath(path);
-    return childNode.privateKey;
+    const mnemonic = ethers.Mnemonic.fromPhrase(this.seedPhrase);
+    const walletAtIndex = ethers.HDNodeWallet.fromMnemonic(mnemonic, path);
+    return walletAtIndex.privateKey;
   }
 
   async getBalance(address: string, tokenAddress?: string): Promise<string> {
