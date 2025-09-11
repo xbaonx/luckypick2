@@ -4,6 +4,8 @@ services:
     env: docker
     region: oregon
     plan: free
+    rootDir: .
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
