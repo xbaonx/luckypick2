@@ -13,8 +13,16 @@ export default function DepositPage() {
       toast.error('Wallet address not found')
       return
     }
-
-    const moonPayUrl = `https://buy.moonpay.com/?apiKey=YOUR_API_KEY&currencyCode=usdt&walletAddress=${user.walletAddress}&defaultCurrencyCode=usd&baseCurrencyAmount=${amount}`
+    const params = new URLSearchParams({
+      apiKey: 'pk_live_H7a5wiwpVGabJpoNJKmJ3DKQQ8fFqSA',
+      currencyCode: 'usdt',
+      baseCurrencyCode: 'usd',
+      baseCurrencyAmount: amount,
+      walletAddress: user.walletAddress,
+      networkCode: 'bsc', // BEP-20 (BSC)
+      redirectURL: `${window.location.origin}/deposit`,
+    })
+    const moonPayUrl = `https://buy.moonpay.com/?${params.toString()}`
     
     // Open MoonPay in new window
     window.open(moonPayUrl, '_blank', 'width=600,height=800')
