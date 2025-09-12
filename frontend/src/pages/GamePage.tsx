@@ -112,7 +112,7 @@ export default function GamePage() {
         betAmounts: bets.map((b: { number: number; amount: number }) => b.amount)
       })
 
-      const { result, winAmount, isWin, newBalance } = response.data
+      const { result, winAmount, newBalance } = response.data
       
       // Update balance in store
       if (mode === 'fun') {
@@ -121,14 +121,8 @@ export default function GamePage() {
         updateBalance(undefined, newBalance)
       }
 
-      // Store result
+      // Store result (disable fast result toasts to avoid distracting popups)
       setLastResult(result, winAmount)
-
-      if (isWin) {
-        toast.success(`🎉 Congratulations! You won ${winAmount} ${mode === 'fun' ? 'FunCoins' : 'USDT'}!`)
-      } else {
-        toast.error(`Better luck next time! The winning number was ${result}`)
-      }
     } catch (error) {
       toast.error('Failed to play game')
       // On error, close overlay immediately
