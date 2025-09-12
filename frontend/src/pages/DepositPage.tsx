@@ -19,15 +19,15 @@ export default function DepositPage() {
       toast.success('Copied your wallet address. Paste it in MoonPay when asked.')
     } catch {}
 
-    // Use MoonPay consumer site (no apiKey). Prefill USDT on BSC and amount in USD.
+    // Use MoonPay consumer link in the requested format (no apiKey):
+    // https://buy.moonpay.com/?currencyCode=usdt_bsc&baseCurrencyCode=usd&baseCurrencyAmount=...
     // User will paste their wallet address manually during checkout.
     const params = new URLSearchParams({
-      currencyCode: 'usdt',
+      currencyCode: 'usdt_bsc', // USDT on BSC (BEP-20)
       baseCurrencyCode: 'usd',
       baseCurrencyAmount: amount,
-      network: 'bsc', // BEP-20 (BSC)
     })
-    const moonPayUrl = `https://www.moonpay.com/buy/usdt?${params.toString()}`
+    const moonPayUrl = `https://buy.moonpay.com/?${params.toString()}`
     
     // Open MoonPay in new window
     window.open(moonPayUrl, '_blank', 'width=600,height=800')
