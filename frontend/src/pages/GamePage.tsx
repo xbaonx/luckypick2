@@ -311,8 +311,8 @@ export default function GamePage() {
 
   return (
     <div className="text-white pb-sticky-safe">
-      <div className="glass-effect rounded-2xl p-3.5 mb-4">
-        <div className="flex flex-col justify-between gap-3.5 mb-4">
+      <div className="glass-effect rounded-2xl shadow-lg p-3.5 mb-4">
+        <div className="sticky top-0 z-40 pt-safe flex flex-col justify-between gap-3.5 mb-4">
           <div className="flex flex-col items-stretch gap-3 w-full">
             {/* Mode Selector */}
             <div className="flex bg-white/15 rounded-lg p-0.5">

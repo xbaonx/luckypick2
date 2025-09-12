@@ -51,6 +51,11 @@ body {
   padding-bottom: calc(116px + env(safe-area-inset-bottom));
 }
 
+/* Safe top padding for sticky headers on devices with notch */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* --- Overlay Digit Animations --- */
 @keyframes digit-flip {
   0% { transform: rotateX(0deg); }
