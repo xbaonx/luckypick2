@@ -16,8 +16,6 @@ import {
   PlayCircleIcon,
   BanknotesIcon,
   CreditCardIcon,
-  TrophyIcon,
-  FaceFrownIcon,
 } from '@heroicons/react/24/outline'
 
 export default function GamePage() {
@@ -29,16 +27,12 @@ export default function GamePage() {
     selectedNumbers, 
     betAmounts,
     defaultBetAmount,
-    lastResult,
-    lastWinAmount,
     isPlaying,
     setMode,
     toggleNumber,
     setBetAmount,
     setDefaultBetAmount,
     clearBets,
-    setLastResult,
-    setIsPlaying,
     getBets,
     selectNumbers,
     unselectNumbers,
@@ -46,7 +40,6 @@ export default function GamePage() {
     selectRandom
   } = useGameStore()
 
-  const [showResult, setShowResult] = useState(false)
   const [bulkAmount, setBulkAmount] = useState<number>(defaultBetAmount)
   const [replaceMode, setReplaceMode] = useState<boolean>(false)
 
@@ -199,65 +192,13 @@ export default function GamePage() {
 
   if (!user) return null
 
-  // Result modal dismiss control (tap to dismiss)
-  const [dismissedResult, setDismissedResult] = useState(false)
+  // Digit display for loading/result animation
   const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
-  const [animDone, setAnimDone] = useState(false)
-  useEffect(() => {
-    if (showResult) {
-      setDismissedResult(false)
-    }
-  }, [showResult, lastResult])
 
-  // Orchestrate staged digit animation: total 20s (tens at 12s, units at 20s)
-  useEffect(() => {
-    if (!showResult || isPlaying) return
-    const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
-    setAnimDone(false)
-    // Start with random digits
-    setDigitDisplay([
-      Math.floor(Math.random() * 10).toString(),
-      Math.floor(Math.random() * 10).toString(),
-    ])
+  // Orchestrate staged digit animation during loading and snap to final
 
-    let phase: 'both' | 'unit' = 'both'
-    const tick = () => {
-      setDigitDisplay(_ => {
-        if (phase === 'both') {
-          return [
-            Math.floor(Math.random() * 10).toString(),
-            Math.floor(Math.random() * 10).toString(),
-          ]
-        }
-        // phase === 'unit': tens locked to target[0], units keep spinning
-        return [
-          target[0],
-          Math.floor(Math.random() * 10).toString(),
-        ]
-      })
-    }
-    const interval = setInterval(tick, 80)
-    const tensLock = setTimeout(() => {
-      phase = 'unit'
-      setDigitDisplay(d => [target[0], d[1]])
-    }, 12000) // 12s
-    const unitLock = setTimeout(() => {
-      setDigitDisplay([target[0], target[1]])
-      setAnimDone(true)
-      clearInterval(interval)
-    }, 20000) // 20s total
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(tensLock)
-      clearTimeout(unitLock)
-    }
-  }, [showResult, isPlaying, lastResult])
-
-  // Start animation during loading as well; snap to final when available
   useEffect(() => {
     if (!isPlaying) return
-    setAnimDone(false)
     setDigitDisplay([
       Math.floor(Math.random() * 10).toString(),
       Math.floor(Math.random() * 10).toString(),
@@ -364,54 +305,7 @@ export default function GamePage() {
 
         {/* Default Bet moved inline below as compact control */}
 
-        {/* Result Modal Overlay */}
-        {showResult && !isPlaying && !dismissedResult && (
-          <div
-            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
-            onClick={() => animDone && setDismissedResult(true)}
-          >
-            <div className="w-full max-w-xs text-center select-none" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-center gap-2 mb-4">
-                {lastWinAmount! > 0 ? (
-                  <div className="flex items-center gap-2 text-green-300 text-lg font-semibold">
-                    <TrophyIcon className="h-6 w-6 text-yellow-400" />
-                    <span>WIN</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-white/80 text-lg font-semibold">
-                    <FaceFrownIcon className="h-6 w-6" />
-                    <span>TRY AGAIN</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Digits with staged animation */}
-              <div className="flex items-center justify-center gap-2">
-                {digitDisplay.map((d, i) => (
-                  <div
-                    key={`${d}-${i}`}
-                    className="w-14 h-14 rounded-md bg-orange-600/80 border border-orange-300/70 flex items-center justify-center text-white text-3xl font-bold shadow-lg animate-[pop_300ms_ease-out]"
-                    style={{ animationDelay: `${i * 120}ms` }}
-                  >
-                    {d}
-                  </div>
-                ))}
-              </div>
-
-              {/* Amount summary when win */}
-              {lastWinAmount! > 0 && (
-                <div className="mt-3 text-white/90 text-sm">
-                  +{lastWinAmount} {mode === 'fun' ? 'FunCoins' : 'USDT'}
-                </div>
-              )}
-
-              {/* Dismiss hint */}
-              <div className="mt-4 text-white/60 text-xs">
-                {animDone ? 'Tap anywhere to dismiss' : 'Drawing... tens locks at 20s, final at 30s'}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Result modal removed to prioritize loading overlay */}
         {/* Mobile-optimized Selection toolbar */}
         <div className="mb-3.5 space-y-3">
           {/* Bulk Amount Control - Mobile First */}
