@@ -268,21 +268,7 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Default Bet only */}
-        <div className="grid grid-cols-1 gap-2.5 mb-4 text-center">
-          <div className="bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 border border-yellow-400/40 rounded-xl p-3">
-            <div className="text-[11px] text-yellow-100 mb-1.5">Default Bet</div>
-            <input
-              type="number"
-              value={defaultBetAmount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDefaultBetAmount(Number(e.target.value))}
-              disabled={isPlaying}
-              className="w-full bg-black/50 text-white text-base font-bold px-3 py-2 rounded-lg border border-yellow-300/50 focus:border-yellow-300 focus:outline-none text-center"
-              min="1"
-              max="1000"
-            />
-          </div>
-        </div>
+        {/* Default Bet moved inline below as compact control */}
 
         {/* Result Display */}
         {showResult && (
@@ -360,6 +346,20 @@ export default function GamePage() {
                     {a}
                   </button>
                 ))}
+              </div>
+
+              {/* Inline Default Bet (compact) */}
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <span className="text-[11px] text-white/70">Default</span>
+                <input
+                  type="number"
+                  value={defaultBetAmount}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDefaultBetAmount(Number(e.target.value))}
+                  disabled={isPlaying}
+                  className="w-16 bg-black/50 text-white text-xs px-2 py-1 rounded border border-yellow-300/50 focus:border-yellow-300 focus:outline-none text-center"
+                  min={1}
+                  max={1000}
+                />
               </div>
             </div>
           </div>
