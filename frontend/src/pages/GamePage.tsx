@@ -25,10 +25,16 @@ export default function GamePage() {
     clearBets,
     setLastResult,
     setIsPlaying,
-    getBets
+    getBets,
+    selectNumbers,
+    unselectNumbers,
+    setAmountForSelected,
+    selectRandom
   } = useGameStore()
 
   const [showResult, setShowResult] = useState(false)
+  const [bulkAmount, setBulkAmount] = useState<number>(defaultBetAmount)
+  const [replaceMode, setReplaceMode] = useState<boolean>(false)
 
   useEffect(() => {
     // Resolve mode from route; default to 'fun' if invalid
@@ -161,6 +167,22 @@ export default function GamePage() {
     return numbers
   }
 
+  // Quick select helpers
+  const range = (start: number, end: number) => Array.from({ length: end - start + 1 }, (_, idx) => start + idx)
+  const evens = range(0, 99).filter(n => n % 2 === 0)
+  const odds = range(0, 99).filter(n => n % 2 === 1)
+  const low = range(0, 49)
+  const high = range(50, 99)
+
+  const applySelect = (nums: number[], amount?: number) => {
+    selectNumbers(nums, amount, replaceMode)
+  }
+
+  const handleApplyAmountToSelected = () => {
+    if (selectedNumbers.length === 0) return
+    setAmountForSelected(bulkAmount)
+  }
+
   if (!user) return null
 
   return (
@@ -203,26 +225,26 @@ export default function GamePage() {
 
             {/* Mode banners & CTAs */}
             {mode === 'fun' && (
-              <div className="ml-4 hidden md:flex items-center space-x-3">
+              <div className="ml-0 sm:ml-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 <span className="text-sm bg-white/10 px-3 py-1 rounded">
                   You're in Fun mode (Demo)
                 </span>
                 <button
                   onClick={() => navigate('/game/usdt')}
-                  className="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
+                  className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded"
                 >
                   Play with real USDT
                 </button>
               </div>
             )}
             {mode === 'usdt' && user.type === 'registered' && user.balanceUsdt < Math.max(1, defaultBetAmount) && (
-              <div className="ml-4 hidden md:flex items-center space-x-3">
+              <div className="ml-0 sm:ml-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 <span className="text-sm bg-red-500/20 text-red-200 px-3 py-1 rounded">
                   Low USDT balance
                 </span>
                 <button
                   onClick={() => navigate('/deposit')}
-                  className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded"
+                  className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded"
                 >
                   Deposit USDT
                 </button>
@@ -275,11 +297,63 @@ export default function GamePage() {
             )}
           </div>
         )}
-      </div>
+        {/* Selection toolbar */}
+        <div className="mb-4 space-y-3">
+          {/* Replace/Append and Amount */}
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+            <label className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded">
+              <input
+                type="checkbox"
+                checked={replaceMode}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReplaceMode(e.target.checked)}
+              />
+              <span className="text-sm">Replace selection</span>
+            </label>
 
-      {/* Number Grid */}
-      <div className="glass-effect rounded-2xl p-4 sm:p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Select Your Lucky Numbers</h2>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <input
+                type="number"
+                value={bulkAmount}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBulkAmount(Number(e.target.value))}
+                min={1}
+                max={1000}
+                className="w-full sm:w-28 bg-black/30 text-white text-sm px-2 py-2 rounded"
+              />
+              <button
+                onClick={handleApplyAmountToSelected}
+                disabled={isPlaying || selectedNumbers.length === 0}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black text-sm px-3 py-2 rounded disabled:opacity-50"
+              >
+                Apply to selected
+              </button>
+              {[1,5,10,20,50,100].map(a => (
+                <button
+                  key={a}
+                  onClick={() => setBulkAmount(a)}
+                  className={`text-sm px-2 py-1 rounded border border-white/20 ${bulkAmount===a ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Select chips */}
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => applySelect(evens, bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Even</button>
+            <button onClick={() => applySelect(odds, bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Odd</button>
+            <button onClick={() => applySelect(low, bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">0-49</button>
+            <button onClick={() => applySelect(high, bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">50-99</button>
+            {[0,1,2,3,4,5,6,7,8,9].map(d => (
+              <button key={d} onClick={() => applySelect(range(0,99).filter(n => n % 10 === d), bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">x{d}</button>
+            ))}
+            <button onClick={() => selectRandom(5, bulkAmount, replaceMode)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Random 5</button>
+            <button onClick={() => selectRandom(10, bulkAmount, replaceMode)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Random 10</button>
+            <button onClick={() => selectRandom(20, bulkAmount, replaceMode)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Random 20</button>
+            <button onClick={() => applySelect(range(0,99), bulkAmount)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Select All</button>
+            <button onClick={() => unselectNumbers(selectedNumbers)} className="text-xs sm:text-sm bg-white/10 hover:bg-white/20 px-3 py-1 rounded">Clear</button>
+          </div>
+        </div>
         <div className="number-grid">
           {renderNumberGrid()}
         </div>
@@ -291,7 +365,7 @@ export default function GamePage() {
           <div className="text-sm sm:text-lg">
             Selected: <span className="font-bold text-yellow-400">{selectedNumbers.length}</span> numbers | 
             Total Bet: <span className="font-bold text-green-400">
-              {getBets().reduce((sum, bet) => sum + bet.amount, 0)} {mode === 'fun' ? 'FunCoins' : 'USDT'}
+              {getBets().reduce((sum: number, bet: { amount: number }) => sum + bet.amount, 0)} {mode === 'fun' ? 'FunCoins' : 'USDT'}
             </span>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 sm:space-x-4 w-full sm:w-auto">

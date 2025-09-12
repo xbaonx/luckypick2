@@ -21,6 +21,11 @@ interface GameState {
   setLastResult: (result: number, winAmount: number) => void
   setIsPlaying: (playing: boolean) => void
   getBets: () => Bet[]
+  // Bulk helpers
+  selectNumbers: (numbers: number[], amount?: number, replace?: boolean) => void
+  unselectNumbers: (numbers: number[]) => void
+  setAmountForSelected: (amount: number) => void
+  selectRandom: (count: number, amount?: number, replace?: boolean) => void
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -77,5 +82,51 @@ export const useGameStore = create<GameState>((set, get) => ({
       number: num,
       amount: state.betAmounts.get(num) || state.defaultBetAmount
     }))
-  }
+  },
+
+  // Bulk helpers
+  selectNumbers: (numbers, amount, replace = false) => set((state) => {
+    const newSet = new Set<number>(replace ? [] : state.selectedNumbers)
+    numbers.forEach(n => {
+      if (n >= 0 && n <= 99) newSet.add(n)
+    })
+    const newNumbers = Array.from(newSet).sort((a, b) => a - b)
+    const newBetAmounts = new Map(state.betAmounts)
+    const amt = amount ?? state.defaultBetAmount
+    numbers.forEach(n => {
+      if (n >= 0 && n <= 99) newBetAmounts.set(n, amt)
+    })
+    return { selectedNumbers: newNumbers, betAmounts: newBetAmounts }
+  }),
+
+  unselectNumbers: (numbers) => set((state) => {
+    const remove = new Set(numbers)
+    const newNumbers = state.selectedNumbers.filter(n => !remove.has(n))
+    const newBetAmounts = new Map(state.betAmounts)
+    numbers.forEach(n => newBetAmounts.delete(n))
+    return { selectedNumbers: newNumbers, betAmounts: newBetAmounts }
+  }),
+
+  setAmountForSelected: (amount) => set((state) => {
+    const newBetAmounts = new Map(state.betAmounts)
+    state.selectedNumbers.forEach(n => newBetAmounts.set(n, amount))
+    return { betAmounts: newBetAmounts }
+  }),
+
+  selectRandom: (count, amount, replace = false) => set((state) => {
+    const pool: number[] = Array.from({ length: 100 }, (_, i) => i)
+    const picked: number[] = []
+    const current = new Set(replace ? [] : state.selectedNumbers)
+    while (picked.length < count && pool.length > 0) {
+      const idx = Math.floor(Math.random() * pool.length)
+      const [n] = pool.splice(idx, 1)
+      current.add(n)
+      picked.push(n)
+    }
+    const newNumbers = Array.from(current).sort((a, b) => a - b)
+    const newBetAmounts = new Map(state.betAmounts)
+    const amt = amount ?? state.defaultBetAmount
+    picked.forEach(n => newBetAmounts.set(n, amt))
+    return { selectedNumbers: newNumbers, betAmounts: newBetAmounts }
+  })
 }))
