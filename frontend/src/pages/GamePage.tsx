@@ -474,6 +474,22 @@ export default function GamePage() {
           </div>
         </div>
       </div>
+
+      {/* Spin Modal Overlay */}
+      {isPlaying && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
+          <div className="w-full max-w-xs text-center select-none">
+            <div className="relative mx-auto mb-5 h-40 w-40">
+              <div className="absolute inset-0 rounded-full border-8 border-white/15"></div>
+              <div className="absolute inset-3 rounded-full border-8 border-white/20"></div>
+              <div className="absolute inset-0 rounded-full border-8 border-transparent border-t-yellow-400 border-r-yellow-300 animate-spin"></div>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-[14px] border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow" />
+            </div>
+            <div className="text-white font-semibold text-lg">Spinning...</div>
+            <div className="text-white/70 text-xs mt-1">Good luck!</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
