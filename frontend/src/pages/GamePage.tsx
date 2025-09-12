@@ -201,9 +201,58 @@ export default function GamePage() {
 
   // Result modal dismiss control (tap to dismiss)
   const [dismissedResult, setDismissedResult] = useState(false)
+  const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
+  const [animDone, setAnimDone] = useState(false)
   useEffect(() => {
-    if (showResult) setDismissedResult(false)
+    if (showResult) {
+      setDismissedResult(false)
+    }
   }, [showResult, lastResult])
+
+  // Orchestrate staged digit animation: lock tens at 20s, units at 30s
+  useEffect(() => {
+    if (!showResult || isPlaying) return
+    const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
+    setAnimDone(false)
+    // Start with random digits
+    setDigitDisplay([
+      Math.floor(Math.random() * 10).toString(),
+      Math.floor(Math.random() * 10).toString(),
+    ])
+
+    let phase: 'both' | 'unit' = 'both'
+    const tick = () => {
+      setDigitDisplay(_ => {
+        if (phase === 'both') {
+          return [
+            Math.floor(Math.random() * 10).toString(),
+            Math.floor(Math.random() * 10).toString(),
+          ]
+        }
+        // phase === 'unit': tens locked to target[0], units keep spinning
+        return [
+          target[0],
+          Math.floor(Math.random() * 10).toString(),
+        ]
+      })
+    }
+    const interval = setInterval(tick, 80)
+    const tensLock = setTimeout(() => {
+      phase = 'unit'
+      setDigitDisplay(d => [target[0], d[1]])
+    }, 20000) // 20s
+    const unitLock = setTimeout(() => {
+      setDigitDisplay([target[0], target[1]])
+      setAnimDone(true)
+      clearInterval(interval)
+    }, 30000) // 30s total
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(tensLock)
+      clearTimeout(unitLock)
+    }
+  }, [showResult, isPlaying, lastResult])
 
   return (
     <div className="text-white pb-sticky-safe">
@@ -280,7 +329,7 @@ export default function GamePage() {
         {showResult && !isPlaying && !dismissedResult && (
           <div
             className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
-            onClick={() => setDismissedResult(true)}
+            onClick={() => animDone && setDismissedResult(true)}
           >
             <div className="w-full max-w-xs text-center select-none" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -297,9 +346,9 @@ export default function GamePage() {
                 )}
               </div>
 
-              {/* Digits */}
+              {/* Digits with staged animation */}
               <div className="flex items-center justify-center gap-2">
-                {`${(lastResult ?? 0).toString().padStart(2, '0')}`.split("").map((d, i) => (
+                {digitDisplay.map((d, i) => (
                   <div
                     key={`${d}-${i}`}
                     className="w-14 h-14 rounded-md bg-orange-600/80 border border-orange-300/70 flex items-center justify-center text-white text-3xl font-bold shadow-lg animate-[pop_300ms_ease-out]"
@@ -318,7 +367,9 @@ export default function GamePage() {
               )}
 
               {/* Dismiss hint */}
-              <div className="mt-4 text-white/60 text-xs">Tap anywhere to dismiss</div>
+              <div className="mt-4 text-white/60 text-xs">
+                {animDone ? 'Tap anywhere to dismiss' : 'Drawing... tens locks at 20s, final at 30s'}
+              </div>
             </div>
           </div>
         )}
