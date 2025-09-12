@@ -5,6 +5,16 @@ import { useAuthStore } from '../stores/authStore'
 import { useGameStore } from '../stores/gameStore'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import {
+  SparklesIcon,
+  CheckCircleIcon,
+  XMarkIcon,
+  ArrowDownCircleIcon,
+  ArrowUpCircleIcon,
+  AdjustmentsHorizontalIcon,
+  AdjustmentsVerticalIcon,
+  PlayCircleIcon,
+} from '@heroicons/react/24/outline'
 
 export default function GamePage() {
   const navigate = useNavigate()
@@ -200,7 +210,7 @@ export default function GamePage() {
                   mode === 'fun' ? 'bg-yellow-500 text-black' : 'text-white hover:bg-white/10'
                 }`}
               >
-                🪙 FunCoin
+                FunCoin
               </button>
               {user.type === 'registered' && (
                 <button
@@ -210,7 +220,7 @@ export default function GamePage() {
                     mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  💵 USDT
+                  USDT
                 </button>
               )}
             </div>
@@ -365,15 +375,27 @@ export default function GamePage() {
           {/* Quick Select - Mobile Grid */}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-white/80 flex items-center gap-2">
-              ⚡ Quick Select
+              Quick Select
             </h4>
             
             {/* Pattern Filters */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button onClick={() => applySelect(evens, bulkAmount)} className="py-3 px-4 text-sm bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/20 text-blue-200 rounded-lg font-medium">📊 Even</button>
-              <button onClick={() => applySelect(odds, bulkAmount)} className="py-3 px-4 text-sm bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/20 text-purple-200 rounded-lg font-medium">📈 Odd</button>
-              <button onClick={() => applySelect(low, bulkAmount)} className="py-3 px-4 text-sm bg-green-500/20 hover:bg-green-500/30 border border-green-400/20 text-green-200 rounded-lg font-medium">⬇️ 0-49</button>
-              <button onClick={() => applySelect(high, bulkAmount)} className="py-3 px-4 text-sm bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/20 text-orange-200 rounded-lg font-medium">⬆️ 50-99</button>
+              <button onClick={() => applySelect(evens, bulkAmount)} className="py-3 px-4 text-sm bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/20 text-blue-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                <span>Even</span>
+              </button>
+              <button onClick={() => applySelect(odds, bulkAmount)} className="py-3 px-4 text-sm bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/20 text-purple-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <AdjustmentsVerticalIcon className="h-4 w-4" />
+                <span>Odd</span>
+              </button>
+              <button onClick={() => applySelect(low, bulkAmount)} className="py-3 px-4 text-sm bg-green-500/20 hover:bg-green-500/30 border border-green-400/20 text-green-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <ArrowDownCircleIcon className="h-4 w-4" />
+                <span>0-49</span>
+              </button>
+              <button onClick={() => applySelect(high, bulkAmount)} className="py-3 px-4 text-sm bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/20 text-orange-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <ArrowUpCircleIcon className="h-4 w-4" />
+                <span>50-99</span>
+              </button>
             </div>
             
             {/* Last Digit Filters - Compact Grid */}
@@ -391,15 +413,30 @@ export default function GamePage() {
             
             {/* Random & Utility */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <button onClick={() => selectRandom(5, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium">🎲 Rand 5</button>
-              <button onClick={() => selectRandom(10, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium">🎲 Rand 10</button>
-              <button onClick={() => selectRandom(20, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium sm:col-span-1 col-span-2">🎲 Random 20</button>
+              <button onClick={() => selectRandom(5, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <SparklesIcon className="h-4 w-4" />
+                <span>Random 5</span>
+              </button>
+              <button onClick={() => selectRandom(10, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <SparklesIcon className="h-4 w-4" />
+                <span>Random 10</span>
+              </button>
+              <button onClick={() => selectRandom(20, bulkAmount, replaceMode)} className="py-3 px-4 text-sm bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/20 text-pink-200 rounded-lg font-medium sm:col-span-1 col-span-2 flex items-center justify-center gap-2">
+                <SparklesIcon className="h-4 w-4" />
+                <span>Random 20</span>
+              </button>
             </div>
             
             {/* Control Buttons */}
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => applySelect(range(0,99), bulkAmount)} className="py-3 px-4 text-sm bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/20 text-cyan-200 rounded-lg font-medium">✅ Select All</button>
-              <button onClick={() => unselectNumbers(selectedNumbers)} className="py-3 px-4 text-sm bg-red-500/20 hover:bg-red-500/30 border border-red-400/20 text-red-200 rounded-lg font-medium">❌ Clear</button>
+              <button onClick={() => applySelect(range(0,99), bulkAmount)} className="py-3 px-4 text-sm bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/20 text-cyan-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <CheckCircleIcon className="h-4 w-4" />
+                <span>Select All</span>
+              </button>
+              <button onClick={() => unselectNumbers(selectedNumbers)} className="py-3 px-4 text-sm bg-red-500/20 hover:bg-red-500/30 border border-red-400/20 text-red-200 rounded-lg font-medium flex items-center justify-center gap-2">
+                <XMarkIcon className="h-4 w-4" />
+                <span>Clear</span>
+              </button>
             </div>
           </div>
         </div>
@@ -428,9 +465,10 @@ export default function GamePage() {
             <button
               onClick={handlePlay}
               disabled={isPlaying || selectedNumbers.length === 0}
-              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 disabled:opacity-50 px-8 py-2 rounded-lg font-bold transition transform hover:scale-105"
+              className="w-full sm:w-auto bg-green-500 hover:bg-green-600 disabled:opacity-50 px-8 py-2 rounded-lg font-bold transition transform hover:scale-105 flex items-center justify-center gap-2"
             >
-              {isPlaying ? 'Playing...' : 'PLAY'}
+              <PlayCircleIcon className="h-5 w-5" />
+              <span>{isPlaying ? 'Playing...' : 'Play'}</span>
             </button>
           </div>
         </div>
@@ -465,9 +503,10 @@ export default function GamePage() {
             <button
               onClick={handlePlay}
               disabled={isPlaying || selectedNumbers.length === 0}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl text-lg transition-all transform active:scale-95 shadow-lg"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl text-lg transition-all transform active:scale-95 shadow-lg flex items-center justify-center gap-2"
             >
-              {isPlaying ? '🎲 Playing...' : '🚀 PLAY NOW'}
+              <PlayCircleIcon className="h-6 w-6" />
+              <span>{isPlaying ? 'Playing...' : 'Play Now'}</span>
             </button>
           </div>
         </div>
