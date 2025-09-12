@@ -7,6 +7,7 @@ import { UserService } from '../user/user.service';
 import { WalletService } from '../wallet/wallet.service';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { UserType } from '../../entities/user.entity';
+import { AdminConfig } from '../../entities/admin-config.entity';
 
 @Injectable()
 export class WithdrawService {
@@ -15,9 +16,26 @@ export class WithdrawService {
     private withdrawRequestRepository: Repository<WithdrawRequest>,
     @InjectRepository(TxHistory)
     private txHistoryRepository: Repository<TxHistory>,
+    @InjectRepository(AdminConfig)
+    private adminConfigRepository: Repository<AdminConfig>,
     private userService: UserService,
     private walletService: WalletService,
   ) {}
+
+  private async getConfigNumber(key: string, fallback: number): Promise<number> {
+    const rec = await this.adminConfigRepository.findOne({ where: { key } })
+    const n = Number(rec?.value)
+    return Number.isFinite(n) ? n : fallback
+  }
+
+  private async getConfigBoolean(key: string, fallback: boolean): Promise<boolean> {
+    const rec = await this.adminConfigRepository.findOne({ where: { key } })
+    if (!rec) return fallback
+    const v = (rec.value || '').toString().toLowerCase().trim()
+    if (v === 'true' || v === '1' || v === 'yes') return true
+    if (v === 'false' || v === '0' || v === 'no') return false
+    return fallback
+  }
 
   async createWithdrawRequest(userId: string, createWithdrawDto: CreateWithdrawDto): Promise<WithdrawRequest> {
     const { amount, toAddress } = createWithdrawDto;
@@ -31,6 +49,22 @@ export class WithdrawService {
     // Check if user is registered
     if (user.type !== UserType.REGISTERED) {
       throw new Error('Only registered users can withdraw');
+    }
+
+    // Maintenance mode
+    const maintenance = await this.getConfigBoolean('maintenance_mode', false)
+    if (maintenance) {
+      throw new Error('System under maintenance')
+    }
+
+    // Enforce min/max withdraw
+    const minWithdraw = await this.getConfigNumber('min_withdraw', 10)
+    const maxWithdraw = await this.getConfigNumber('max_withdraw', 1000)
+    if (Number(amount) < minWithdraw) {
+      throw new Error(`Minimum withdraw is ${minWithdraw}`)
+    }
+    if (Number(amount) > maxWithdraw) {
+      throw new Error(`Maximum withdraw is ${maxWithdraw}`)
     }
     
     // Check balance
