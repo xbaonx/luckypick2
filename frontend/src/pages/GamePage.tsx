@@ -209,7 +209,7 @@ export default function GamePage() {
     }
   }, [showResult, lastResult])
 
-  // Orchestrate staged digit animation: lock tens at 20s, units at 30s
+  // Orchestrate staged digit animation: total 20s (tens at 12s, units at 20s)
   useEffect(() => {
     if (!showResult || isPlaying) return
     const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
@@ -240,12 +240,12 @@ export default function GamePage() {
     const tensLock = setTimeout(() => {
       phase = 'unit'
       setDigitDisplay(d => [target[0], d[1]])
-    }, 20000) // 20s
+    }, 12000) // 12s
     const unitLock = setTimeout(() => {
       setDigitDisplay([target[0], target[1]])
       setAnimDone(true)
       clearInterval(interval)
-    }, 30000) // 30s total
+    }, 20000) // 20s total
 
     return () => {
       clearInterval(interval)
@@ -253,6 +253,45 @@ export default function GamePage() {
       clearTimeout(unitLock)
     }
   }, [showResult, isPlaying, lastResult])
+
+  // Start animation during loading as well; snap to final when available
+  useEffect(() => {
+    if (!isPlaying) return
+    setAnimDone(false)
+    setDigitDisplay([
+      Math.floor(Math.random() * 10).toString(),
+      Math.floor(Math.random() * 10).toString(),
+    ])
+    let phase: 'both' | 'unit' = 'both'
+    const tick = () => {
+      setDigitDisplay(d => {
+        if (phase === 'both') {
+          return [
+            Math.floor(Math.random() * 10).toString(),
+            Math.floor(Math.random() * 10).toString(),
+          ]
+        }
+        return [
+          d[0],
+          Math.floor(Math.random() * 10).toString(),
+        ]
+      })
+    }
+    const interval = setInterval(tick, 80)
+    const tensLock = setTimeout(() => {
+      phase = 'unit'
+      if (showResult && lastResult !== undefined && lastResult !== null) {
+        const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
+        setDigitDisplay(d => [target[0], d[1]])
+      }
+    }, 12000)
+
+    const cleanup = () => {
+      clearInterval(interval)
+      clearTimeout(tensLock)
+    }
+    return cleanup
+  }, [isPlaying, showResult, lastResult])
 
   return (
     <div className="text-white pb-sticky-safe">
@@ -552,18 +591,22 @@ export default function GamePage() {
         </div>
       </div>
 
-      {/* Spin Modal Overlay */}
+      {/* Spin Modal Overlay with digits */}
       {isPlaying && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="w-full max-w-xs text-center select-none">
-            <div className="relative mx-auto mb-5 h-40 w-40">
-              <div className="absolute inset-0 rounded-full border-8 border-white/15"></div>
-              <div className="absolute inset-3 rounded-full border-8 border-white/20"></div>
-              <div className="absolute inset-0 rounded-full border-8 border-transparent border-t-yellow-400 border-r-yellow-300 animate-spin"></div>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-[14px] border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow" />
+            <div className="flex items-center justify-center gap-2 mb-3">
+              {digitDisplay.map((d, i) => (
+                <div
+                  key={`loading-${d}-${i}`}
+                  className="w-14 h-14 rounded-md bg-orange-600/80 border border-orange-300/70 flex items-center justify-center text-white text-3xl font-bold shadow-lg"
+                >
+                  {d}
+                </div>
+              ))}
             </div>
-            <div className="text-white font-semibold text-lg">Spinning...</div>
-            <div className="text-white/70 text-xs mt-1">Good luck!</div>
+            <div className="text-white font-semibold text-lg">Drawing...</div>
+            <div className="text-white/70 text-xs mt-1">Tens locks at 12s, final at 20s</div>
           </div>
         </div>
       )}
