@@ -14,6 +14,10 @@ import {
   AdjustmentsHorizontalIcon,
   AdjustmentsVerticalIcon,
   PlayCircleIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  TrophyIcon,
+  FaceFrownIcon,
 } from '@heroicons/react/24/outline'
 
 export default function GamePage() {
@@ -240,14 +244,16 @@ export default function GamePage() {
             {mode === 'fun' && (
               <div className="bg-yellow-500/15 border-l-4 border-yellow-500 rounded-lg p-3 w-full">
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm text-yellow-200 flex-1">
-                    🎮 You're in Fun mode (Demo)
+                  <span className="text-sm text-yellow-200 flex items-center gap-2">
+                    <SparklesIcon className="h-4 w-4" />
+                    <span>You're in Fun mode (Demo)</span>
                   </span>
                   <button
                     onClick={() => navigate('/game/usdt')}
-                    className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+                    className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    💵 Play with real USDT
+                    <BanknotesIcon className="h-5 w-5" />
+                    <span>Play with real USDT</span>
                   </button>
                 </div>
               </div>
@@ -255,14 +261,16 @@ export default function GamePage() {
             {mode === 'usdt' && user.type === 'registered' && user.balanceUsdt < Math.max(1, defaultBetAmount) && (
               <div className="bg-red-500/15 border-l-4 border-red-500 rounded-lg p-3 w-full">
                 <div className="flex flex-col gap-2">
-                  <span className="text-sm text-red-200 flex-1">
-                    ⚠️ Low USDT balance
+                  <span className="text-sm text-red-200 flex items-center gap-2">
+                    <XMarkIcon className="h-4 w-4" />
+                    <span>Low USDT balance</span>
                   </span>
                   <button
                     onClick={() => navigate('/deposit')}
-                    className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+                    className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
-                    💳 Deposit USDT
+                    <CreditCardIcon className="h-5 w-5" />
+                    <span>Deposit USDT</span>
                   </button>
                 </div>
               </div>
@@ -270,25 +278,9 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Game Info - Mobile Optimized */}
-        <div className="grid grid-cols-2 gap-3 mb-5 text-center">
-          <div className="bg-gradient-to-br from-blue-500/30 to-blue-600/30 border border-blue-400/40 rounded-xl p-3.5">
-            <div className="text-xs text-blue-100 mb-1">Win Rate</div>
-            <div className="text-base font-bold text-blue-50">
-              {mode === 'fun' ? '5%' : '1%'}
-            </div>
-            <div className="text-[11px] text-blue-200 mt-1">
-              {mode === 'fun' ? '(1/20)' : '(1/100)'}
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-green-500/30 to-green-600/30 border border-green-400/40 rounded-xl p-3.5">
-            <div className="text-xs text-green-100 mb-1">Payout</div>
-            <div className="text-base font-bold text-green-50">
-              {mode === 'fun' ? '10x' : '70x'}
-            </div>
-            <div className="text-[11px] text-green-200 mt-1">multiplier</div>
-          </div>
-          <div className="col-span-2 bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 border border-yellow-400/40 rounded-xl p-3.5">
+        {/* Default Bet only */}
+        <div className="grid grid-cols-1 gap-3 mb-5 text-center">
+          <div className="bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 border border-yellow-400/40 rounded-xl p-3.5">
             <div className="text-xs text-yellow-100 mb-2">Default Bet</div>
             <input
               type="number"
@@ -305,8 +297,18 @@ export default function GamePage() {
         {/* Result Display */}
         {showResult && (
           <div className="bg-black/30 rounded-lg p-4 mb-4 text-center">
-            <div className="text-2xl mb-2">
-              {lastWinAmount! > 0 ? '🎉 YOU WIN! 🎉' : '😔 Try Again'}
+            <div className="flex items-center justify-center gap-2 text-2xl mb-2">
+              {lastWinAmount! > 0 ? (
+                <>
+                  <TrophyIcon className="h-7 w-7 text-yellow-400" />
+                  <span className="font-semibold">You Win!</span>
+                </>
+              ) : (
+                <>
+                  <FaceFrownIcon className="h-7 w-7 text-white/80" />
+                  <span className="font-semibold">Try Again</span>
+                </>
+              )}
             </div>
             <div className="text-4xl font-bold text-yellow-400">
               Winning Number: {lastResult?.toString().padStart(2, '0')}
