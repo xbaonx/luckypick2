@@ -199,6 +199,12 @@ export default function GamePage() {
 
   if (!user) return null
 
+  // Result modal dismiss control (tap to dismiss)
+  const [dismissedResult, setDismissedResult] = useState(false)
+  useEffect(() => {
+    if (showResult) setDismissedResult(false)
+  }, [showResult, lastResult])
+
   return (
     <div className="text-white pb-sticky-safe">
       <div className="glass-effect rounded-2xl p-3.5 mb-4">
@@ -270,30 +276,50 @@ export default function GamePage() {
 
         {/* Default Bet moved inline below as compact control */}
 
-        {/* Result Display */}
-        {showResult && (
-          <div className="bg-black/30 rounded-lg p-4 mb-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-2xl mb-2">
-              {lastWinAmount! > 0 ? (
-                <>
-                  <TrophyIcon className="h-7 w-7 text-yellow-400" />
-                  <span className="font-semibold">You Win!</span>
-                </>
-              ) : (
-                <>
-                  <FaceFrownIcon className="h-7 w-7 text-white/80" />
-                  <span className="font-semibold">Try Again</span>
-                </>
-              )}
-            </div>
-            <div className="text-4xl font-bold text-yellow-400">
-              Winning Number: {lastResult?.toString().padStart(2, '0')}
-            </div>
-            {lastWinAmount! > 0 && (
-              <div className="text-2xl mt-2">
-                Won: {lastWinAmount} {mode === 'fun' ? 'FunCoins' : 'USDT'}
+        {/* Result Modal Overlay */}
+        {showResult && !isPlaying && !dismissedResult && (
+          <div
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+            onClick={() => setDismissedResult(true)}
+          >
+            <div className="w-full max-w-xs text-center select-none" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                {lastWinAmount! > 0 ? (
+                  <div className="flex items-center gap-2 text-green-300 text-lg font-semibold">
+                    <TrophyIcon className="h-6 w-6 text-yellow-400" />
+                    <span>WIN</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-white/80 text-lg font-semibold">
+                    <FaceFrownIcon className="h-6 w-6" />
+                    <span>TRY AGAIN</span>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Digits */}
+              <div className="flex items-center justify-center gap-2">
+                {`${(lastResult ?? 0).toString().padStart(2, '0')}`.split("").map((d, i) => (
+                  <div
+                    key={`${d}-${i}`}
+                    className="w-14 h-14 rounded-md bg-orange-600/80 border border-orange-300/70 flex items-center justify-center text-white text-3xl font-bold shadow-lg animate-[pop_300ms_ease-out]"
+                    style={{ animationDelay: `${i * 120}ms` }}
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+
+              {/* Amount summary when win */}
+              {lastWinAmount! > 0 && (
+                <div className="mt-3 text-white/90 text-sm">
+                  +{lastWinAmount} {mode === 'fun' ? 'FunCoins' : 'USDT'}
+                </div>
+              )}
+
+              {/* Dismiss hint */}
+              <div className="mt-4 text-white/60 text-xs">Tap anywhere to dismiss</div>
+            </div>
           </div>
         )}
         {/* Mobile-optimized Selection toolbar */}
