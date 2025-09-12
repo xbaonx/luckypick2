@@ -16,6 +16,8 @@ import {
   PlayCircleIcon,
   BanknotesIcon,
   CreditCardIcon,
+  TrophyIcon,
+  FaceFrownIcon,
 } from '@heroicons/react/24/outline'
 
 export default function GamePage() {
@@ -29,6 +31,7 @@ export default function GamePage() {
     defaultBetAmount,
     isPlaying,
     lastResult,
+    lastWinAmount,
     setIsPlaying,
     setLastResult,
     setMode,
@@ -192,6 +195,7 @@ export default function GamePage() {
   // Digit display for loading/result animation
   const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
   const [overlayReadyDismiss, setOverlayReadyDismiss] = useState(false)
+  const [confettiFired, setConfettiFired] = useState(false)
 
   // Orchestrate staged digit animation during loading and snap to final
 
@@ -224,7 +228,7 @@ export default function GamePage() {
         const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
         setDigitDisplay(d => [target[0], d[1]])
       }
-    }, 12000)
+    }, 6000)
     const unitLock = setTimeout(() => {
       if (lastResult !== null) {
         const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
@@ -232,7 +236,7 @@ export default function GamePage() {
       }
       setOverlayReadyDismiss(true)
       clearInterval(interval)
-    }, 20000)
+    }, 10000)
 
     const cleanup = () => {
       clearInterval(interval)
@@ -241,6 +245,69 @@ export default function GamePage() {
     }
     return cleanup
   }, [isPlaying, lastResult])
+
+  // Fire lightweight confetti on win when overlay finalizes
+  useEffect(() => {
+    if (!overlayReadyDismiss || !isPlaying) return
+    if (lastWinAmount && lastWinAmount > 0 && !confettiFired) {
+      setConfettiFired(true)
+      // simple canvas confetti burst
+      const canvas = document.createElement('canvas')
+      canvas.style.position = 'fixed'
+      canvas.style.inset = '0'
+      canvas.style.zIndex = '110'
+      canvas.style.pointerEvents = 'none'
+      document.body.appendChild(canvas)
+      const ctx = canvas.getContext('2d')!
+      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
+      resize()
+      window.addEventListener('resize', resize)
+
+      const particles = Array.from({ length: 120 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * 100,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2 + Math.random() * 3,
+        size: 4 + Math.random() * 4,
+        color: `hsl(${Math.floor(Math.random() * 360)}, 90%, 60%)`,
+        life: 0,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.2,
+      }))
+
+      let raf = 0
+      const start = performance.now()
+      const draw = (t: number) => {
+        const elapsed = t - start
+        if (!ctx) return
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        particles.forEach(p => {
+          p.life += 16
+          p.x += p.vx
+          p.y += p.vy
+          p.vy += 0.05
+          p.rot += p.vr
+          ctx.save()
+          ctx.translate(p.x, p.y)
+          ctx.rotate(p.rot)
+          ctx.fillStyle = p.color
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size)
+          ctx.restore()
+        })
+        if (elapsed < 1500) {
+          raf = requestAnimationFrame(draw)
+        } else {
+          cleanup()
+        }
+      }
+      const cleanup = () => {
+        cancelAnimationFrame(raf)
+        window.removeEventListener('resize', resize)
+        canvas.remove()
+      }
+      raf = requestAnimationFrame(draw)
+    }
+  }, [overlayReadyDismiss, isPlaying, lastWinAmount, confettiFired])
 
   return (
     <div className="text-white pb-sticky-safe">
@@ -497,18 +564,33 @@ export default function GamePage() {
       {isPlaying && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => overlayReadyDismiss && setIsPlaying(false)}>
           <div className="w-full max-w-xs text-center select-none">
+            {overlayReadyDismiss && (
+              <div className={`flex items-center justify-center gap-2 mb-2 ${lastWinAmount && lastWinAmount > 0 ? 'text-green-300' : 'text-white/85'}`}>
+                {lastWinAmount && lastWinAmount > 0 ? (
+                  <>
+                    <TrophyIcon className="h-6 w-6 text-yellow-400" />
+                    <span className="font-semibold">You Win</span>
+                  </>
+                ) : (
+                  <>
+                    <FaceFrownIcon className="h-6 w-6" />
+                    <span className="font-semibold">Try Again</span>
+                  </>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-center gap-2 mb-3">
               {digitDisplay.map((d, i) => (
                 <div
                   key={`loading-${d}-${i}`}
-                  className="w-14 h-14 rounded-md bg-orange-600/80 border border-orange-300/70 flex items-center justify-center text-white text-3xl font-bold shadow-lg"
+                  className={`w-14 h-14 rounded-md flex items-center justify-center text-white text-3xl font-bold shadow-lg ${overlayReadyDismiss ? (lastWinAmount && lastWinAmount > 0 ? 'bg-green-600/80 border border-green-300/70 anim-pop anim-glow-green' : 'bg-slate-700/80 border border-white/30 anim-pop anim-glow-slate') : 'bg-orange-600/80 border border-orange-300/70 anim-flip'}`}
                 >
                   {d}
                 </div>
               ))}
             </div>
             <div className="text-white font-semibold text-lg">{overlayReadyDismiss ? 'Result' : 'Drawing...'}</div>
-            <div className="text-white/70 text-xs mt-1">{overlayReadyDismiss ? 'Tap anywhere to dismiss' : 'Tens locks at 12s, final at 20s'}</div>
+            <div className="text-white/70 text-xs mt-1">{overlayReadyDismiss ? 'Tap anywhere to dismiss' : 'Tens locks at 6s, final at 10s'}</div>
           </div>
         </div>
       )}
