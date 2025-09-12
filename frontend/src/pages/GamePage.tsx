@@ -186,7 +186,7 @@ export default function GamePage() {
   if (!user) return null
 
   return (
-    <div className="text-white">
+    <div className="text-white pb-sticky-safe">
       <div className="glass-effect rounded-2xl p-4 sm:p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <h1 className="text-3xl font-bold">Lucky Pick 2</h1>
@@ -437,11 +437,10 @@ export default function GamePage() {
       </div>
 
       {/* Mobile Sticky Bottom Controls */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent pt-6 pb-safe">
-        <div className="px-4 pb-4">
-          {/* Stats Bar */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-t-2xl p-4 mb-0 border-t border-white/20">
-            <div className="flex items-center justify-between text-sm">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe">
+        <div className="px-4">
+          <div className="backdrop-blur-md bg-black/70 rounded-t-2xl border-t border-white/20 p-4">
+            <div className="flex items-center justify-between text-sm mb-3">
               <div className="flex items-center gap-4">
                 <div>
                   <span className="text-white/70">Selected:</span>
@@ -463,21 +462,16 @@ export default function GamePage() {
                 Clear
               </button>
             </div>
+            <button
+              onClick={handlePlay}
+              disabled={isPlaying || selectedNumbers.length === 0}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl text-lg transition-all transform active:scale-95 shadow-lg"
+            >
+              {isPlaying ? '🎲 Playing...' : '🚀 PLAY NOW'}
+            </button>
           </div>
-          
-          {/* Play Button */}
-          <button
-            onClick={handlePlay}
-            disabled={isPlaying || selectedNumbers.length === 0}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 disabled:opacity-50 text-white font-bold py-4 rounded-b-2xl text-lg transition-all transform active:scale-95 shadow-lg"
-          >
-            {isPlaying ? '🎲 Playing...' : '🚀 PLAY NOW'}
-          </button>
         </div>
       </div>
-
-      {/* Mobile bottom spacing */}
-      <div className="sm:hidden h-32"></div>
     </div>
   )
 }
