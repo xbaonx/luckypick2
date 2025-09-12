@@ -51,7 +51,7 @@ body {
   padding-bottom: calc(116px + env(safe-area-inset-bottom));
 }
 
-/* Safe top padding for sticky headers on devices with notch */
+/* Safe area top padding for sticky headers (iOS notch) */
 .pt-safe {
   padding-top: env(safe-area-inset-top);
 }
