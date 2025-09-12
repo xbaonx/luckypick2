@@ -131,8 +131,10 @@ export default function GamePage() {
       }
     } catch (error) {
       toast.error('Failed to play game')
-    } finally {
+      // On error, close overlay immediately
       setIsPlaying(false)
+    } finally {
+      // Keep overlay open; will be closed by user tap after animation
     }
   }
 
@@ -195,11 +197,13 @@ export default function GamePage() {
 
   // Digit display for loading/result animation
   const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
+  const [overlayReadyDismiss, setOverlayReadyDismiss] = useState(false)
 
   // Orchestrate staged digit animation during loading and snap to final
 
   useEffect(() => {
     if (!isPlaying) return
+    setOverlayReadyDismiss(false)
     setDigitDisplay([
       Math.floor(Math.random() * 10).toString(),
       Math.floor(Math.random() * 10).toString(),
@@ -227,10 +231,19 @@ export default function GamePage() {
         setDigitDisplay(d => [target[0], d[1]])
       }
     }, 12000)
+    const unitLock = setTimeout(() => {
+      if (lastResult !== null) {
+        const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
+        setDigitDisplay([target[0], target[1]])
+      }
+      setOverlayReadyDismiss(true)
+      clearInterval(interval)
+    }, 20000)
 
     const cleanup = () => {
       clearInterval(interval)
       clearTimeout(tensLock)
+      clearTimeout(unitLock)
     }
     return cleanup
   }, [isPlaying, lastResult])
@@ -488,7 +501,7 @@ export default function GamePage() {
 
       {/* Spin Modal Overlay with digits */}
       {isPlaying && (
-        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => overlayReadyDismiss && setIsPlaying(false)}>
           <div className="w-full max-w-xs text-center select-none">
             <div className="flex items-center justify-center gap-2 mb-3">
               {digitDisplay.map((d, i) => (
@@ -500,8 +513,8 @@ export default function GamePage() {
                 </div>
               ))}
             </div>
-            <div className="text-white font-semibold text-lg">Drawing...</div>
-            <div className="text-white/70 text-xs mt-1">Tens locks at 12s, final at 20s</div>
+            <div className="text-white font-semibold text-lg">{overlayReadyDismiss ? 'Result' : 'Drawing...'}</div>
+            <div className="text-white/70 text-xs mt-1">{overlayReadyDismiss ? 'Tap anywhere to dismiss' : 'Tens locks at 12s, final at 20s'}</div>
           </div>
         </div>
       )}
