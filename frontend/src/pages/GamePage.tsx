@@ -28,6 +28,9 @@ export default function GamePage() {
     betAmounts,
     defaultBetAmount,
     isPlaying,
+    lastResult,
+    setIsPlaying,
+    setLastResult,
     setMode,
     toggleNumber,
     setBetAmount,
@@ -118,9 +121,8 @@ export default function GamePage() {
         updateBalance(undefined, newBalance)
       }
 
-      // Show result
+      // Store result
       setLastResult(result, winAmount)
-      setShowResult(true)
 
       if (isWin) {
         toast.success(`🎉 Congratulations! You won ${winAmount} ${mode === 'fun' ? 'FunCoins' : 'USDT'}!`)
@@ -136,7 +138,6 @@ export default function GamePage() {
 
   const handleClearBets = () => {
     clearBets()
-    setShowResult(false)
   }
 
   const renderNumberGrid = () => {
@@ -144,7 +145,7 @@ export default function GamePage() {
     for (let i = 0; i < 100; i++) {
       const isSelected = selectedNumbers.includes(i)
       const betAmount = betAmounts.get(i) || defaultBetAmount
-      const isWinning = showResult && i === lastResult
+      const isWinning = lastResult !== null && i === lastResult
 
       numbers.push(
         <div
@@ -221,7 +222,7 @@ export default function GamePage() {
     const interval = setInterval(tick, 80)
     const tensLock = setTimeout(() => {
       phase = 'unit'
-      if (showResult && lastResult !== undefined && lastResult !== null) {
+      if (lastResult !== null) {
         const target = `${(lastResult ?? 0).toString().padStart(2, '0')}`
         setDigitDisplay(d => [target[0], d[1]])
       }
@@ -232,7 +233,7 @@ export default function GamePage() {
       clearTimeout(tensLock)
     }
     return cleanup
-  }, [isPlaying, showResult, lastResult])
+  }, [isPlaying, lastResult])
 
   return (
     <div className="text-white pb-sticky-safe">
