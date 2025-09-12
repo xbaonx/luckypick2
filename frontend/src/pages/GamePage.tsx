@@ -201,12 +201,11 @@ export default function GamePage() {
 
   return (
     <div className="text-white pb-sticky-safe">
-      <div className="glass-effect rounded-2xl p-4 mb-5">
-        <div className="flex flex-col justify-between gap-4 mb-5">
-          <h1 className="text-2xl font-bold">Lucky Pick 2</h1>
+      <div className="glass-effect rounded-2xl p-3.5 mb-4">
+        <div className="flex flex-col justify-between gap-3.5 mb-4">
           <div className="flex flex-col items-stretch gap-3 w-full">
             {/* Mode Selector */}
-            <div className="flex bg-white/15 rounded-lg p-1">
+            <div className="flex bg-white/15 rounded-lg p-0.5">
               <button
                 onClick={() => navigate('/game/fun')}
                 disabled={isPlaying}
@@ -220,7 +219,7 @@ export default function GamePage() {
                 <button
                   onClick={() => navigate('/game/usdt')}
                   disabled={isPlaying}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition ${
+                  className={`px-2.5 py-1.5 text-sm rounded-lg transition ${
                     mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
                   }`}
                 >
@@ -229,16 +228,7 @@ export default function GamePage() {
               )}
             </div>
 
-            {/* Balance Display - Mobile Optimized */}
-            <div className="bg-white/15 rounded-lg px-3 py-2.5 text-left">
-              <div className="text-[11px] text-white/80 uppercase tracking-wide mb-1">Balance</div>
-              <div className="text-lg font-bold text-yellow-400">
-                {mode === 'fun' ? 
-                  `${user.balanceFun.toFixed(0)} FunCoins` : 
-                  `${user.balanceUsdt.toFixed(2)} USDT`
-                }
-              </div>
-            </div>
+            
 
             {/* Mode banners & CTAs - Mobile Optimized */}
             {mode === 'fun' && (
@@ -279,15 +269,15 @@ export default function GamePage() {
         </div>
 
         {/* Default Bet only */}
-        <div className="grid grid-cols-1 gap-3 mb-5 text-center">
-          <div className="bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 border border-yellow-400/40 rounded-xl p-3.5">
-            <div className="text-xs text-yellow-100 mb-2">Default Bet</div>
+        <div className="grid grid-cols-1 gap-2.5 mb-4 text-center">
+          <div className="bg-gradient-to-br from-yellow-500/30 to-yellow-600/30 border border-yellow-400/40 rounded-xl p-3">
+            <div className="text-[11px] text-yellow-100 mb-1.5">Default Bet</div>
             <input
               type="number"
               value={defaultBetAmount}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDefaultBetAmount(Number(e.target.value))}
               disabled={isPlaying}
-              className="w-full bg-black/50 text-white text-lg font-bold px-3 py-2 rounded-lg border border-yellow-300/50 focus:border-yellow-300 focus:outline-none text-center"
+              className="w-full bg-black/50 text-white text-base font-bold px-3 py-2 rounded-lg border border-yellow-300/50 focus:border-yellow-300 focus:outline-none text-center"
               min="1"
               max="1000"
             />
@@ -321,10 +311,10 @@ export default function GamePage() {
           </div>
         )}
         {/* Mobile-optimized Selection toolbar */}
-        <div className="mb-4 space-y-3">
+        <div className="mb-3.5 space-y-3">
           {/* Bulk Amount Control - Mobile First */}
-          <div className="bg-white/10 rounded-lg p-3.5">
-            <div className="flex flex-col space-y-2.5">
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="flex flex-col space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Bulk Amount</span>
                 <label className="flex items-center gap-2">
@@ -345,25 +335,25 @@ export default function GamePage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBulkAmount(Number(e.target.value))}
                   min={1}
                   max={1000}
-                  className="flex-1 bg-black/50 text-white text-base px-3.5 py-2.5 rounded-lg border border-white/30 focus:border-yellow-300 focus:outline-none"
+                  className="flex-1 bg-black/50 text-white text-sm px-3 py-2 rounded-lg border border-white/30 focus:border-yellow-300 focus:outline-none"
                   placeholder="Enter amount"
                 />
                 <button
                   onClick={handleApplyAmountToSelected}
                   disabled={isPlaying || selectedNumbers.length === 0}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-3.5 py-2.5 rounded-lg disabled:opacity-50 whitespace-nowrap"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-3 py-2 rounded-lg disabled:opacity-50 whitespace-nowrap"
                 >
                   Apply
                 </button>
               </div>
               
               {/* Amount Presets - Mobile optimized */}
-              <div className="grid grid-cols-6 gap-2">
+              <div className="grid grid-cols-6 gap-1.5">
                 {[1,5,10,20,50,100].map(a => (
                   <button
                     key={a}
                     onClick={() => setBulkAmount(a)}
-                    className={`py-2 px-1 text-sm rounded-lg border transition-all ${
+                    className={`py-1.5 px-1 text-xs rounded-lg border transition-all ${
                       bulkAmount === a ? 'bg-yellow-500 border-yellow-400 text-black font-bold' : 'bg-white/15 hover:bg-white/25 text-white border-white/30'
                     }`}
                   >
@@ -376,25 +366,25 @@ export default function GamePage() {
 
           {/* Quick Select - Mobile Grid */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-white flex items-center gap-2">
-              Quick Select
+            <h4 className="text-xs font-medium text-white flex items-center gap-2">
+              Quick
             </h4>
             
             {/* Pattern Filters */}
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => applySelect(evens, bulkAmount)} className="py-2.5 px-3 text-sm bg-blue-600/30 hover:bg-blue-600/40 border border-blue-300/40 text-blue-50 rounded-lg font-medium flex items-center justify-center gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={() => applySelect(evens, bulkAmount)} className="py-2 px-2.5 text-xs bg-blue-600/40 hover:bg-blue-600/50 border border-blue-300/50 text-blue-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <AdjustmentsHorizontalIcon className="h-4 w-4" />
                 <span>Even</span>
               </button>
-              <button onClick={() => applySelect(odds, bulkAmount)} className="py-2.5 px-3 text-sm bg-purple-600/30 hover:bg-purple-600/40 border border-purple-300/40 text-purple-50 rounded-lg font-medium flex items-center justify-center gap-2">
+              <button onClick={() => applySelect(odds, bulkAmount)} className="py-2 px-2.5 text-xs bg-purple-600/40 hover:bg-purple-600/50 border border-purple-300/50 text-purple-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <AdjustmentsVerticalIcon className="h-4 w-4" />
                 <span>Odd</span>
               </button>
-              <button onClick={() => applySelect(low, bulkAmount)} className="py-2.5 px-3 text-sm bg-green-600/30 hover:bg-green-600/40 border border-green-300/40 text-green-50 rounded-lg font-medium flex items-center justify-center gap-2">
+              <button onClick={() => applySelect(low, bulkAmount)} className="py-2 px-2.5 text-xs bg-green-600/40 hover:bg-green-600/50 border border-green-300/50 text-green-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <ArrowDownCircleIcon className="h-4 w-4" />
                 <span>0-49</span>
               </button>
-              <button onClick={() => applySelect(high, bulkAmount)} className="py-2.5 px-3 text-sm bg-orange-600/30 hover:bg-orange-600/40 border border-orange-300/40 text-orange-50 rounded-lg font-medium flex items-center justify-center gap-2">
+              <button onClick={() => applySelect(high, bulkAmount)} className="py-2 px-2.5 text-xs bg-orange-600/40 hover:bg-orange-600/50 border border-orange-300/50 text-orange-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <ArrowUpCircleIcon className="h-4 w-4" />
                 <span>50-99</span>
               </button>
@@ -406,7 +396,7 @@ export default function GamePage() {
                 <button 
                   key={d} 
                   onClick={() => applySelect(range(0,99).filter(n => n % 10 === d), bulkAmount)} 
-                  className="py-2 px-2 text-xs bg-white/20 hover:bg-white/30 text-white rounded border border-white/30"
+                  className="py-1.5 px-2 text-xs bg-white/25 hover:bg-white/35 text-white rounded border border-white/35"
                 >
                   x{d}
                 </button>
@@ -414,28 +404,28 @@ export default function GamePage() {
             </div>
             
             {/* Random & Utility */}
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => selectRandom(5, bulkAmount, replaceMode)} className="py-2.5 px-3 text-sm bg-pink-600/30 hover:bg-pink-600/40 border border-pink-300/40 text-pink-50 rounded-lg font-medium flex items-center justify-center gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={() => selectRandom(5, bulkAmount, replaceMode)} className="py-2 px-2.5 text-xs bg-pink-600/40 hover:bg-pink-600/50 border border-pink-300/50 text-pink-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <SparklesIcon className="h-4 w-4" />
-                <span>Random 5</span>
+                <span>Rand 5</span>
               </button>
-              <button onClick={() => selectRandom(10, bulkAmount, replaceMode)} className="py-2.5 px-3 text-sm bg-pink-600/30 hover:bg-pink-600/40 border border-pink-300/40 text-pink-50 rounded-lg font-medium flex items-center justify-center gap-2">
+              <button onClick={() => selectRandom(10, bulkAmount, replaceMode)} className="py-2 px-2.5 text-xs bg-pink-600/40 hover:bg-pink-600/50 border border-pink-300/50 text-pink-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <SparklesIcon className="h-4 w-4" />
-                <span>Random 10</span>
+                <span>Rand 10</span>
               </button>
-              <button onClick={() => selectRandom(20, bulkAmount, replaceMode)} className="py-2.5 px-3 text-sm bg-pink-600/30 hover:bg-pink-600/40 border border-pink-300/40 text-pink-50 rounded-lg font-medium col-span-2 flex items-center justify-center gap-2">
+              <button onClick={() => selectRandom(20, bulkAmount, replaceMode)} className="py-2 px-2.5 text-xs bg-pink-600/40 hover:bg-pink-600/50 border border-pink-300/50 text-pink-50 rounded-lg font-medium col-span-2 flex items-center justify-center gap-1.5">
                 <SparklesIcon className="h-4 w-4" />
-                <span>Random 20</span>
+                <span>Rand 20</span>
               </button>
             </div>
             
             {/* Control Buttons */}
-            <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => applySelect(range(0,99), bulkAmount)} className="py-2.5 px-3 text-sm bg-cyan-600/30 hover:bg-cyan-600/40 border border-cyan-300/40 text-cyan-50 rounded-lg font-medium flex items-center justify-center gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
+              <button onClick={() => applySelect(range(0,99), bulkAmount)} className="py-2 px-2.5 text-xs bg-cyan-600/40 hover:bg-cyan-600/50 border border-cyan-300/50 text-cyan-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <CheckCircleIcon className="h-4 w-4" />
-                <span>Select All</span>
+                <span>All</span>
               </button>
-              <button onClick={() => unselectNumbers(selectedNumbers)} className="py-2.5 px-3 text-sm bg-red-600/30 hover:bg-red-600/40 border border-red-300/40 text-red-50 rounded-lg font-medium flex items-center justify-center gap-2">
+              <button onClick={() => unselectNumbers(selectedNumbers)} className="py-2 px-2.5 text-xs bg-red-600/40 hover:bg-red-600/50 border border-red-300/50 text-red-50 rounded-lg font-medium flex items-center justify-center gap-1.5">
                 <XMarkIcon className="h-4 w-4" />
                 <span>Clear</span>
               </button>
