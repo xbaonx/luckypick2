@@ -7,7 +7,6 @@ import api from '../services/api'
 import toast from 'react-hot-toast'
 import Confetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
-import Layout from '../components/Layout'
 import {
   SparklesIcon,
   CheckCircleIcon,
@@ -64,6 +63,7 @@ export default function GamePage() {
   const { mode: routeModeParam } = useParams()
   const { user, token, updateBalance, loginAsGuest } = useAuthStore()
   const triedGuestRef = useRef(false)
+  const { width, height } = useWindowSize()
   const { 
     mode, 
     selectedNumbers, 
@@ -293,71 +293,25 @@ export default function GamePage() {
     return cleanup
   }, [isPlaying, lastResult])
 
-  // Fire lightweight confetti on win when overlay finalizes
+  // Fire confetti on win when overlay finalizes
   useEffect(() => {
-    if (!overlayReadyDismiss || !isPlaying) return
-    if (lastWinAmount && lastWinAmount > 0 && !confettiFired) {
+    if (overlayReadyDismiss && lastWinAmount && lastWinAmount > 0 && !confettiFired) {
       setConfettiFired(true)
-      // simple canvas confetti burst
-      const canvas = document.createElement('canvas')
-      canvas.style.position = 'fixed'
-      canvas.style.inset = '0'
-      canvas.style.zIndex = '110'
-      canvas.style.pointerEvents = 'none'
-      document.body.appendChild(canvas)
-      const ctx = canvas.getContext('2d')!
-      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
-      resize()
-      window.addEventListener('resize', resize)
-
-      const particles = Array.from({ length: 120 }, () => ({
-        x: Math.random() * canvas.width,
-        y: -20 - Math.random() * 100,
-        vx: (Math.random() - 0.5) * 4,
-        vy: 2 + Math.random() * 3,
-        size: 4 + Math.random() * 4,
-        color: `hsl(${Math.floor(Math.random() * 360)}, 90%, 60%)`,
-        life: 0,
-        rot: Math.random() * Math.PI,
-        vr: (Math.random() - 0.5) * 0.2,
-      }))
-
-      let raf = 0
-      const start = performance.now()
-      const draw = (t: number) => {
-        const elapsed = t - start
-        if (!ctx) return
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        particles.forEach(p => {
-          p.life += 16
-          p.x += p.vx
-          p.y += p.vy
-          p.vy += 0.05
-          p.rot += p.vr
-          ctx.save()
-          ctx.translate(p.x, p.y)
-          ctx.rotate(p.rot)
-          ctx.fillStyle = p.color
-          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size)
-          ctx.restore()
-        })
-        if (elapsed < 1500) {
-          raf = requestAnimationFrame(draw)
-        } else {
-          cleanup()
-        }
-      }
-      const cleanup = () => {
-        cancelAnimationFrame(raf)
-        window.removeEventListener('resize', resize)
-        canvas.remove()
-      }
-      raf = requestAnimationFrame(draw)
     }
-  }, [overlayReadyDismiss, isPlaying, lastWinAmount, confettiFired])
+  }, [overlayReadyDismiss, lastWinAmount, confettiFired])
 
   return (
     <div className="text-white pb-sticky-safe">
+      {confettiFired && (
+        <Confetti
+          width={width}
+          height={height}
+          recycle={false}
+          numberOfPieces={500}
+          tweenDuration={7000}
+          onConfettiComplete={() => setConfettiFired(false)}
+        />
+      )}
       <div className="glass-effect rounded-2xl p-3.5 mb-4">
         <div className="flex flex-col justify-between gap-3.5 mb-4">
           <div className="flex flex-col items-stretch gap-3 w-full">
