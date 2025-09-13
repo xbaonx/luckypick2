@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
@@ -24,6 +24,7 @@ export default function GamePage() {
   const navigate = useNavigate()
   const { mode: routeModeParam } = useParams()
   const { user, token, updateBalance, loginAsGuest } = useAuthStore()
+  const triedGuestRef = useRef(false)
   const { 
     mode, 
     selectedNumbers, 
@@ -83,7 +84,7 @@ export default function GamePage() {
 
   const handlePlay = async () => {
     // Guard: require registered account for USDT mode
-    if (mode === 'usdt' && user!.type !== 'registered') {
+    if (mode === 'usdt' && (!user || user.type !== 'registered')) {
       toast.error('Please register to play with USDT')
       navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
       return
@@ -98,11 +99,11 @@ export default function GamePage() {
     const totalBet = bets.reduce((sum: number, bet: { amount: number }) => sum + bet.amount, 0)
     
     // Check balance
-    if (mode === 'fun' && totalBet > user!.balanceFun) {
+    if (mode === 'fun' && totalBet > (user?.balanceFun ?? 0)) {
       toast.error('Insufficient FunCoin balance')
       return
     }
-    if (mode === 'usdt' && totalBet > user!.balanceUsdt) {
+    if (mode === 'usdt' && totalBet > (user?.balanceUsdt ?? 0)) {
       toast.error('Insufficient USDT balance')
       return
     }
@@ -190,7 +191,13 @@ export default function GamePage() {
     setAmountForSelected(bulkAmount)
   }
 
-  if (!user) return null
+  // Auto login as guest to avoid blank page after logout
+  useEffect(() => {
+    if (!user && !triedGuestRef.current) {
+      triedGuestRef.current = true
+      loginAsGuest()
+    }
+  }, [user, loginAsGuest])
 
   // Digit display for loading/result animation
   const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
@@ -326,7 +333,7 @@ export default function GamePage() {
               >
                 FunCoin
               </button>
-              {user.type === 'registered' && (
+              {user?.type === 'registered' && (
                 <button
                   onClick={() => navigate('/game/usdt')}
                   disabled={isPlaying}
@@ -359,7 +366,7 @@ export default function GamePage() {
                 </div>
               </div>
             )}
-            {mode === 'usdt' && user.type === 'registered' && user.balanceUsdt < Math.max(1, defaultBetAmount) && (
+            {mode === 'usdt' && user?.type === 'registered' && (user?.balanceUsdt ?? 0) < Math.max(1, defaultBetAmount) && (
               <div className="bg-red-500/15 border-l-4 border-red-500 rounded-lg p-3 w-full">
                 <div className="flex flex-col gap-2">
                   <span className="text-sm text-red-200 flex items-center gap-2">
@@ -599,7 +606,9 @@ export default function GamePage() {
               ))}
             </div>
             <div className="text-white font-semibold text-lg">{overlayReadyDismiss ? 'Result' : 'Drawing...'}</div>
-            <div className="text-white/70 text-xs mt-1">{overlayReadyDismiss ? 'Tap anywhere to dismiss' : 'Tens locks at 6s, final at 10s'}</div>
+            {overlayReadyDismiss && (
+              <div className="text-white/70 text-xs mt-1">Tap anywhere to dismiss</div>
+            )}
           </div>
         </div>
       )}
