@@ -7,6 +7,8 @@ import { UserModule } from '../user/user.module';
 import { GameModule } from '../game/game.module';
 import { WithdrawModule } from '../withdraw/withdraw.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { CronModule } from '../cron/cron.module';
+import { MetricsModule } from '../metrics/metrics.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { WalletModule } from '../wallet/wallet.module';
     GameModule,
     WithdrawModule,
     WalletModule,
+    CronModule,
+    MetricsModule,
   ],
   providers: [AdminService],
   controllers: [AdminController],

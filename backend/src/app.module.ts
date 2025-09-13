@@ -12,6 +12,7 @@ import { CronModule } from './modules/cron/cron.module';
 import { WithdrawModule } from './modules/withdraw/withdraw.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MetricsModule } from './modules/metrics/metrics.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { AuthModule } from './modules/auth/auth.module';
     CronModule,
     WithdrawModule,
     AdminModule,
+    MetricsModule,
   ],
 })
 export class AppModule {}

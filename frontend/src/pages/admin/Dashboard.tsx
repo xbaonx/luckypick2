@@ -10,6 +10,33 @@ export default function AdminDashboard() {
     },
   })
 
+  const { data: cronStatus } = useQuery({
+    queryKey: ['cronStatus'],
+    queryFn: async () => {
+      const response = await api.get('/admin/cron/status')
+      return response.data
+    },
+    refetchInterval: 10000, // Refresh every 10s
+  })
+
+  const { data: ctaMetrics } = useQuery({
+    queryKey: ['ctaMetrics'],
+    queryFn: async () => {
+      const response = await api.get('/admin/metrics/cta?name=fun_win_usdt_upsell')
+      return response.data
+    },
+  })
+
+  const triggerScan = async () => {
+    try {
+      await api.post('/admin/cron/scan')
+      // Refresh status after trigger
+      setTimeout(() => window.location.reload(), 1000)
+    } catch (error) {
+      console.error('Failed to trigger scan:', error)
+    }
+  }
+
   if (isLoading) {
     return <div className="text-white text-center">Loading dashboard...</div>
   }
@@ -105,6 +132,67 @@ export default function AdminDashboard() {
             <a href="/admin/seed-setup" className="block bg-white/10 hover:bg-white/20 p-3 rounded-lg transition">
               Wallet Setup
             </a>
+          </div>
+        </div>
+
+        {/* Deposit Scanner Status */}
+        <div className="glass-effect rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">Deposit Scanner</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>Status</span>
+              <span className={`font-bold ${cronStatus?.isScanning ? 'text-yellow-400' : 'text-green-400'}`}>
+                {cronStatus?.isScanning ? 'Scanning...' : 'Idle'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Last Block</span>
+              <span className="font-bold">{cronStatus?.lastProcessedBlock || 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Current Block</span>
+              <span className="font-bold">{cronStatus?.currentBlock || 0}</span>
+            </div>
+            <button
+              onClick={triggerScan}
+              disabled={cronStatus?.isScanning}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-3 py-2 rounded-lg transition"
+            >
+              {cronStatus?.isScanning ? 'Scanning...' : 'Trigger Scan Now'}
+            </button>
+          </div>
+        </div>
+
+        {/* CTA Metrics */}
+        <div className="glass-effect rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">CTA Performance</h2>
+          <div className="space-y-3">
+            {ctaMetrics?.fun_win_usdt_upsell ? Object.entries(ctaMetrics.fun_win_usdt_upsell).map(([variant, data]: [string, any]) => {
+              const views = data.view || 0
+              const clicks = data.click || 0
+              const ctr = views > 0 ? ((clicks / views) * 100).toFixed(1) : '0.0'
+              return (
+                <div key={variant} className="border border-white/20 rounded-lg p-3">
+                  <div className="font-semibold text-sm mb-2">{variant.replace('_', ' ').toUpperCase()}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <div className="text-gray-400">Views</div>
+                      <div className="font-bold">{views}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400">Clicks</div>
+                      <div className="font-bold">{clicks}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400">CTR</div>
+                      <div className="font-bold text-green-400">{ctr}%</div>
+                    </div>
+                  </div>
+                </div>
+              )
+            }) : (
+              <div className="text-gray-400 text-sm">No CTA data yet</div>
+            )}
           </div>
         </div>
       </div>

@@ -162,4 +162,22 @@ export class CronService {
       this.logger.error('Error checking pending transactions:', error);
     }
   }
+
+  // ---- Admin helpers ----
+  async getScanStatus() {
+    const current = await this.walletService.getCurrentBlock().catch(() => 0)
+    return {
+      isScanning: this.isScanning,
+      lastProcessedBlock: this.lastProcessedBlock,
+      currentBlock: current,
+    }
+  }
+
+  async triggerScanNow() {
+    if (this.isScanning) {
+      return { started: false, reason: 'scan already in progress' }
+    }
+    await this.scanDeposits()
+    return { started: true }
+  }
 }

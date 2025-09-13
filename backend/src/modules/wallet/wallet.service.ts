@@ -11,6 +11,7 @@ export class WalletService {
   private adminWallet: ethers.HDNodeWallet;
   private seedPhrase: string;
   private dataDir: string;
+  private tokenDecimals: number | null = null;
 
   constructor(private configService: ConfigService) {
     this.provider = new ethers.JsonRpcProvider(
@@ -99,11 +100,14 @@ export class WalletService {
       // Get ERC20 token balance
       const tokenContract = new ethers.Contract(
         tokenAddress,
-        ['function balanceOf(address) view returns (uint256)'],
+        ['function balanceOf(address) view returns (uint256)', 'function decimals() view returns (uint8)'],
         this.provider
       );
-      const balance = await tokenContract.balanceOf(address);
-      return ethers.formatUnits(balance, 6); // USDT has 6 decimals
+      const [balance, decimals] = await Promise.all([
+        tokenContract.balanceOf(address),
+        this.getTokenDecimals(),
+      ]);
+      return ethers.formatUnits(balance, decimals);
     } else {
       // Get native balance
       const balance = await this.provider.getBalance(address);
@@ -123,6 +127,7 @@ export class WalletService {
       const wallet = new ethers.Wallet(privateKey, this.provider);
       const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
       const adminAddress = this.configService.get<string>('ADMIN_ADDRESS');
+      const decimals = await this.getTokenDecimals();
 
       // Create token contract
       const tokenContract = new ethers.Contract(
@@ -136,14 +141,14 @@ export class WalletService {
 
       // Check balance first
       const balance = await tokenContract.balanceOf(wallet.address);
-      if (balance < ethers.parseUnits(amount, 6)) {
+      if (balance < ethers.parseUnits(amount, decimals)) {
         throw new Error('Insufficient balance');
       }
 
       // Transfer tokens to admin wallet
       const tx = await tokenContract.transfer(
         adminAddress,
-        ethers.parseUnits(amount, 6)
+        ethers.parseUnits(amount, decimals)
       );
       
       const receipt = await tx.wait();
@@ -166,6 +171,7 @@ export class WalletService {
 
       if (isToken) {
         const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
+        const decimals = await this.getTokenDecimals();
         const tokenContract = new ethers.Contract(
           tokenAddress,
           ['function transfer(address to, uint256 amount) returns (bool)'],
@@ -174,7 +180,7 @@ export class WalletService {
 
         const tx = await tokenContract.transfer(
           toAddress,
-          ethers.parseUnits(amount, 6)
+          ethers.parseUnits(amount, decimals)
         );
         const receipt = await tx.wait();
         return receipt.hash;
@@ -220,6 +226,7 @@ export class WalletService {
   }>> {
     const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
     if (!tokenAddress) throw new Error('TOKEN_ADDRESS not configured');
+    const decimals = await this.getTokenDecimals();
 
     const iface = new ethers.Interface([
       'event Transfer(address indexed from, address indexed to, uint256 value)'
@@ -243,9 +250,23 @@ export class WalletService {
         txHash: log.transactionHash,
         from: (parsed.args[0] as string).toLowerCase(),
         to: (parsed.args[1] as string).toLowerCase(),
-        amount: ethers.formatUnits(value, 6),
+        amount: ethers.formatUnits(value, decimals),
         blockNumber: log.blockNumber!,
       };
     });
+  }
+
+  private async getTokenDecimals(): Promise<number> {
+    if (this.tokenDecimals != null) return this.tokenDecimals;
+    const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
+    if (!tokenAddress) throw new Error('TOKEN_ADDRESS not configured');
+    const tokenContract = new ethers.Contract(
+      tokenAddress,
+      ['function decimals() view returns (uint8)'],
+      this.provider
+    );
+    const dec = await tokenContract.decimals();
+    this.tokenDecimals = Number(dec);
+    return this.tokenDecimals;
   }
 }

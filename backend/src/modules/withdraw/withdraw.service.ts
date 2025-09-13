@@ -8,33 +8,63 @@ import { WalletService } from '../wallet/wallet.service';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { UserType } from '../../entities/user.entity';
 import { AdminConfig } from '../../entities/admin-config.entity';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class WithdrawService {
+  private readonly logger = new Logger(WithdrawService.name);
+  private configCache = new Map<string, { value: string; expiry: number }>();
+
   constructor(
     @InjectRepository(WithdrawRequest)
     private withdrawRequestRepository: Repository<WithdrawRequest>,
     @InjectRepository(TxHistory)
     private txHistoryRepository: Repository<TxHistory>,
-    @InjectRepository(AdminConfig)
-    private adminConfigRepository: Repository<AdminConfig>,
     private userService: UserService,
     private walletService: WalletService,
+    private configService: ConfigService,
+    @InjectRepository(AdminConfig)
+    private adminConfigRepository: Repository<AdminConfig>,
   ) {}
 
   private async getConfigNumber(key: string, fallback: number): Promise<number> {
-    const rec = await this.adminConfigRepository.findOne({ where: { key } })
-    const n = Number(rec?.value)
-    return Number.isFinite(n) ? n : fallback
+    const cached = this.configCache.get(key);
+    let value: string | undefined;
+
+    if (cached && Date.now() < cached.expiry) {
+      value = cached.value;
+    } else {
+      const rec = await this.adminConfigRepository.findOne({ where: { key } });
+      value = rec?.value;
+      if (value !== undefined) {
+        this.configCache.set(key, { value, expiry: Date.now() + 60_000 }); // 60s cache
+      }
+    }
+
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
   }
 
   private async getConfigBoolean(key: string, fallback: boolean): Promise<boolean> {
-    const rec = await this.adminConfigRepository.findOne({ where: { key } })
-    if (!rec) return fallback
-    const v = (rec.value || '').toString().toLowerCase().trim()
-    if (v === 'true' || v === '1' || v === 'yes') return true
-    if (v === 'false' || v === '0' || v === 'no') return false
-    return fallback
+    const cached = this.configCache.get(key);
+    let value: string | undefined;
+
+    if (cached && Date.now() < cached.expiry) {
+      value = cached.value;
+    } else {
+      const rec = await this.adminConfigRepository.findOne({ where: { key } });
+      value = rec?.value;
+      if (value !== undefined) {
+        this.configCache.set(key, { value, expiry: Date.now() + 60_000 }); // 60s cache
+      }
+    }
+
+    if (!value) return fallback;
+    const v = value.toString().toLowerCase().trim();
+    if (v === 'true' || v === '1' || v === 'yes') return true;
+    if (v === 'false' || v === '0' || v === 'no') return false;
+    return fallback;
   }
 
   async createWithdrawRequest(userId: string, createWithdrawDto: CreateWithdrawDto): Promise<WithdrawRequest> {

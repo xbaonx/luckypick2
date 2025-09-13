@@ -9,6 +9,8 @@ import { AdminConfig } from '../../entities/admin-config.entity';
 
 @Injectable()
 export class GameService {
+  private configCache = new Map<string, { value: string; expiry: number }>()
+
   constructor(
     @InjectRepository(GameHistory)
     private gameHistoryRepository: Repository<GameHistory>,
@@ -18,15 +20,39 @@ export class GameService {
   ) {}
 
   private async getConfigNumber(key: string, fallback: number): Promise<number> {
-    const rec = await this.adminConfigRepository.findOne({ where: { key } })
-    const n = Number(rec?.value)
+    const cached = this.configCache.get(key)
+    let value: string | undefined
+    
+    if (cached && Date.now() < cached.expiry) {
+      value = cached.value
+    } else {
+      const rec = await this.adminConfigRepository.findOne({ where: { key } })
+      value = rec?.value
+      if (value !== undefined) {
+        this.configCache.set(key, { value, expiry: Date.now() + 60_000 }) // 60s cache
+      }
+    }
+    
+    const n = Number(value)
     return Number.isFinite(n) ? n : fallback
   }
 
   private async getConfigBoolean(key: string, fallback: boolean): Promise<boolean> {
-    const rec = await this.adminConfigRepository.findOne({ where: { key } })
-    if (!rec) return fallback
-    const v = (rec.value || '').toString().toLowerCase().trim()
+    const cached = this.configCache.get(key)
+    let value: string | undefined
+    
+    if (cached && Date.now() < cached.expiry) {
+      value = cached.value
+    } else {
+      const rec = await this.adminConfigRepository.findOne({ where: { key } })
+      value = rec?.value
+      if (value !== undefined) {
+        this.configCache.set(key, { value, expiry: Date.now() + 60_000 }) // 60s cache
+      }
+    }
+    
+    if (!value) return fallback
+    const v = value.toString().toLowerCase().trim()
     if (v === 'true' || v === '1' || v === 'yes') return true
     if (v === 'false' || v === '0' || v === 'no') return false
     return fallback
@@ -164,6 +190,25 @@ export class GameService {
       .addSelect('SUM(game.winAmount)', 'totalWin')
       .getRawOne();
 
+    // Detailed stats by mode
+    const funStats = await this.gameHistoryRepository
+      .createQueryBuilder('game')
+      .select('COUNT(*)', 'games')
+      .addSelect('SUM(CASE WHEN game.isWin = 1 THEN 1 ELSE 0 END)', 'wins')
+      .addSelect('SUM(game.totalBet)', 'totalBet')
+      .addSelect('SUM(game.winAmount)', 'totalPayout')
+      .where('game.mode = :mode', { mode: GameMode.FUN })
+      .getRawOne();
+
+    const usdtStats = await this.gameHistoryRepository
+      .createQueryBuilder('game')
+      .select('COUNT(*)', 'games')
+      .addSelect('SUM(CASE WHEN game.isWin = 1 THEN 1 ELSE 0 END)', 'wins')
+      .addSelect('SUM(game.totalBet)', 'totalBet')
+      .addSelect('SUM(game.winAmount)', 'totalPayout')
+      .where('game.mode = :mode', { mode: GameMode.USDT })
+      .getRawOne();
+
     return {
       totalGames,
       totalWins,
@@ -172,6 +217,23 @@ export class GameService {
       usdtGames,
       totalBet: totalBetResult?.totalBet || 0,
       totalPayout: totalBetResult?.totalWin || 0,
+      // Detailed breakdown by mode
+      funMode: {
+        games: Number(funStats?.games || 0),
+        wins: Number(funStats?.wins || 0),
+        winRate: Number(funStats?.games || 0) > 0 ? (Number(funStats?.wins || 0) / Number(funStats?.games || 0)) * 100 : 0,
+        totalBet: Number(funStats?.totalBet || 0),
+        totalPayout: Number(funStats?.totalPayout || 0),
+        houseEdge: Number(funStats?.totalBet || 0) > 0 ? ((Number(funStats?.totalBet || 0) - Number(funStats?.totalPayout || 0)) / Number(funStats?.totalBet || 0)) * 100 : 0,
+      },
+      usdtMode: {
+        games: Number(usdtStats?.games || 0),
+        wins: Number(usdtStats?.wins || 0),
+        winRate: Number(usdtStats?.games || 0) > 0 ? (Number(usdtStats?.wins || 0) / Number(usdtStats?.games || 0)) * 100 : 0,
+        totalBet: Number(usdtStats?.totalBet || 0),
+        totalPayout: Number(usdtStats?.totalPayout || 0),
+        houseEdge: Number(usdtStats?.totalBet || 0) > 0 ? ((Number(usdtStats?.totalBet || 0) - Number(usdtStats?.totalPayout || 0)) / Number(usdtStats?.totalBet || 0)) * 100 : 0,
+      },
     };
   }
 }

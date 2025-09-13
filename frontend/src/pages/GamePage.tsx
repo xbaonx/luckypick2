@@ -5,6 +5,9 @@ import { useAuthStore } from '../stores/authStore'
 import { useGameStore } from '../stores/gameStore'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Confetti from 'react-confetti'
+import { useWindowSize } from 'react-use'
+import Layout from '../components/Layout'
 import {
   SparklesIcon,
   CheckCircleIcon,
@@ -19,6 +22,42 @@ import {
   TrophyIcon,
   FaceFrownIcon,
 } from '@heroicons/react/24/outline'
+
+// A/B Testing CTA variants
+const CTA_VARIANTS = [
+  "On a hot streak! Play with USDT to win real money",
+  "Winning now? Switch to USDT and cash in", 
+  "Convert your luck into real USDT earnings"
+]
+
+// Helper to get consistent variant for user
+const getCtaVariant = (userId: string | undefined): { text: string; variant: string } => {
+  if (!userId) {
+    const idx = Math.floor(Math.random() * CTA_VARIANTS.length)
+    return { text: CTA_VARIANTS[idx], variant: `variant_${idx + 1}` }
+  }
+  // Use userId hash for consistency
+  const hash = userId.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const idx = hash % CTA_VARIANTS.length
+  return { text: CTA_VARIANTS[idx], variant: `variant_${idx + 1}` }
+}
+
+// Log CTA metrics
+const logCtaMetric = async (action: 'view' | 'click', variant: string, mode: string, amount?: number, userId?: string) => {
+  try {
+    await api.post('/metrics/cta', {
+      name: 'fun_win_usdt_upsell',
+      variant,
+      action,
+      mode,
+      amount,
+      userId
+    })
+  } catch (error) {
+    // Silent fail for metrics
+    console.warn('Failed to log CTA metric:', error)
+  }
+}
 
 export default function GamePage() {
   const navigate = useNavigate()
@@ -595,25 +634,33 @@ export default function GamePage() {
                 </span>
               </div>
             )}
-            {overlayReadyDismiss && lastWinAmount && lastWinAmount > 0 && mode === 'fun' && (
-              <div className="mb-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsPlaying(false)
-                    if (user?.type === 'registered') {
-                      navigate('/game/usdt')
-                    } else {
-                      navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
-                    }
-                  }}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-green-500 hover:from-yellow-500 hover:to-green-600 text-black font-semibold px-3 py-2 rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm"
-                >
-                  <BanknotesIcon className="h-5 w-5" />
-                  <span>On a hot streak! Play with USDT to win real money</span>
-                </button>
-              </div>
-            )}
+            {overlayReadyDismiss && lastWinAmount && lastWinAmount > 0 && mode === 'fun' && (() => {
+              const ctaVariant = getCtaVariant(user?.id)
+              // Log view when CTA is displayed
+              logCtaMetric('view', ctaVariant.variant, mode, lastWinAmount, user?.id)
+              
+              return (
+                <div className="mb-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      // Log click before navigation
+                      logCtaMetric('click', ctaVariant.variant, mode, lastWinAmount, user?.id)
+                      setIsPlaying(false)
+                      if (user?.type === 'registered') {
+                        navigate('/game/usdt')
+                      } else {
+                        navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
+                      }
+                    }}
+                    className="w-full bg-gradient-to-r from-yellow-400 to-green-500 hover:from-yellow-500 hover:to-green-600 text-black font-semibold px-3 py-2 rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm"
+                  >
+                    <BanknotesIcon className="h-5 w-5" />
+                    <span>{ctaVariant.text}</span>
+                  </button>
+                </div>
+              )
+            })()}
             <div className="flex items-center justify-center gap-2 mb-3">
               {digitDisplay.map((d, i) => (
                 <div

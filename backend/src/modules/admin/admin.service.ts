@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AdminConfig } from '../../entities/admin-config.entity';
+import { CronService } from '../cron/cron.service';
 import { UserService } from '../user/user.service';
 import { GameService } from '../game/game.service';
 import { WithdrawService } from '../withdraw/withdraw.service';
@@ -14,6 +15,7 @@ export class AdminService implements OnModuleInit {
     private userService: UserService,
     private gameService: GameService,
     private withdrawService: WithdrawService,
+    private cronService: CronService,
   ) {}
 
   async onModuleInit() {
@@ -94,6 +96,15 @@ export class AdminService implements OnModuleInit {
         pendingAmount: pendingWithdraws.reduce((sum, w) => sum + Number(w.amount), 0),
       },
     };
+  }
+
+  // ---- Cron admin helpers ----
+  async getCronStatus() {
+    return this.cronService.getScanStatus()
+  }
+
+  async triggerCronScan() {
+    return this.cronService.triggerScanNow()
   }
 
   async getUserDetails(userId: string) {
