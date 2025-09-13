@@ -202,6 +202,7 @@ export default function GamePage() {
   useEffect(() => {
     if (!isPlaying) return
     setOverlayReadyDismiss(false)
+    setConfettiFired(false)
     setDigitDisplay([
       Math.floor(Math.random() * 10).toString(),
       Math.floor(Math.random() * 10).toString(),
@@ -577,6 +578,14 @@ export default function GamePage() {
                     <span className="font-semibold">Try Again</span>
                   </>
                 )}
+              </div>
+            )}
+            {overlayReadyDismiss && lastWinAmount && lastWinAmount > 0 && (
+              <div className="mb-2">
+                <span className="inline-flex items-center gap-1 bg-green-500/20 text-green-200 border border-green-300/30 rounded-full px-3 py-1 text-sm font-semibold">
+                  <BanknotesIcon className="h-4 w-4" />
+                  +{mode === 'fun' ? Math.floor(lastWinAmount).toLocaleString() + ' FunCoins' : lastWinAmount.toFixed(2) + ' USDT'}
+                </span>
               </div>
             )}
             <div className="flex items-center justify-center gap-2 mb-3">
