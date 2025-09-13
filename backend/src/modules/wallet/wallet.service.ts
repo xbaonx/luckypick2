@@ -205,4 +205,47 @@ export class WalletService {
     const minGas = ethers.parseEther('0.001'); // Minimum 0.001 BNB for gas
     return balance > minGas;
   }
+
+  // --- Event-based deposit helpers ---
+  async getCurrentBlock(): Promise<number> {
+    return await this.provider.getBlockNumber();
+  }
+
+  async getUsdtTransferEvents(fromBlock: number, toBlock: number): Promise<Array<{
+    txHash: string;
+    from: string;
+    to: string;
+    amount: string; // human-readable (6 decimals)
+    blockNumber: number;
+  }>> {
+    const tokenAddress = this.configService.get<string>('TOKEN_ADDRESS');
+    if (!tokenAddress) throw new Error('TOKEN_ADDRESS not configured');
+
+    const iface = new ethers.Interface([
+      'event Transfer(address indexed from, address indexed to, uint256 value)'
+    ]);
+    const transferTopic = ethers.id('Transfer(address,address,uint256)');
+
+    const logs = await this.provider.getLogs({
+      address: tokenAddress,
+      topics: [transferTopic],
+      fromBlock,
+      toBlock,
+    });
+
+    return logs.map((log) => {
+      const parsed = iface.parseLog({
+        topics: Array.from(log.topics),
+        data: log.data,
+      });
+      const value = parsed.args[2] as bigint;
+      return {
+        txHash: log.transactionHash,
+        from: (parsed.args[0] as string).toLowerCase(),
+        to: (parsed.args[1] as string).toLowerCase(),
+        amount: ethers.formatUnits(value, 6),
+        blockNumber: log.blockNumber!,
+      };
+    });
+  }
 }

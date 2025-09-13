@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { User } from './user.entity';
 
 export enum TxType {
@@ -14,6 +14,7 @@ export enum TxStatus {
 }
 
 @Entity('tx_histories')
+@Index(['type', 'txHash'], { unique: true })
 export class TxHistory {
   @PrimaryGeneratedColumn('uuid')
   id: string;
