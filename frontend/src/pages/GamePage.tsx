@@ -595,6 +595,25 @@ export default function GamePage() {
                 </span>
               </div>
             )}
+            {overlayReadyDismiss && lastWinAmount && lastWinAmount > 0 && mode === 'fun' && (
+              <div className="mb-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsPlaying(false)
+                    if (user?.type === 'registered') {
+                      navigate('/game/usdt')
+                    } else {
+                      navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
+                    }
+                  }}
+                  className="w-full bg-gradient-to-r from-yellow-400 to-green-500 hover:from-yellow-500 hover:to-green-600 text-black font-semibold px-3 py-2 rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm"
+                >
+                  <BanknotesIcon className="h-5 w-5" />
+                  <span>Đang đỏ tay! Chơi USDT để kiếm tiền</span>
+                </button>
+              </div>
+            )}
             <div className="flex items-center justify-center gap-2 mb-3">
               {digitDisplay.map((d, i) => (
                 <div
