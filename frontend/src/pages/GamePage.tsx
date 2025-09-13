@@ -610,7 +610,7 @@ export default function GamePage() {
                   className="w-full bg-gradient-to-r from-yellow-400 to-green-500 hover:from-yellow-500 hover:to-green-600 text-black font-semibold px-3 py-2 rounded-lg shadow-lg transition flex items-center justify-center gap-2 text-sm"
                 >
                   <BanknotesIcon className="h-5 w-5" />
-                  <span>Đang đỏ tay! Chơi USDT để kiếm tiền</span>
+                  <span>On a hot streak! Play with USDT to win real money</span>
                 </button>
               </div>
             )}
