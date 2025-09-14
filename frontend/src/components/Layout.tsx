@@ -68,8 +68,11 @@ export default function Layout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-center justify-between gap-2 py-2">
             <div className="flex items-center space-x-8">
-              <Link to="/" className="text-2xl font-bold text-yellow-400">
-                🎰 LuckyPick2
+              <Link to="/" className="flex items-center gap-2 group">
+                <img src="/logo.png" alt="LuckyPick2" className="h-9 w-9 rounded-full shadow-lg group-hover:scale-105 transition-transform" />
+                <span className="text-2xl font-bold">
+                  <span className="text-yellow-400">Lucky</span><span className="text-white">Pick2</span>
+                </span>
               </Link>
               {/* Desktop nav links */}
               <div className="hidden md:flex gap-4">

@@ -15,7 +15,13 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <div className="w-64 glass-effect text-white">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-yellow-400">🎰 Admin Panel</h2>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="LuckyPick2" className="h-10 w-10 rounded-full shadow" />
+            <div>
+              <div className="text-xl font-bold"><span className="text-yellow-400">Lucky</span><span>Pick2</span></div>
+              <div className="text-xs text-white/70">Admin Panel</div>
+            </div>
+          </div>
         </div>
         <nav className="px-4 space-y-2">
           <Link

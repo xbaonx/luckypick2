@@ -30,6 +30,9 @@ export default function HomePage() {
   return (
     <div className="text-white">
       <div className="text-center py-16">
+        <div className="flex justify-center mb-4">
+          <img src="/logo.png" alt="LuckyPick2" className="h-20 w-20 rounded-full shadow-lg" />
+        </div>
         <h1 className="text-6xl font-bold mb-4">
           <span className="text-yellow-400">Lucky</span>Pick2
         </h1>
