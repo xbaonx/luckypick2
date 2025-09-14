@@ -86,33 +86,65 @@ export default function AdminDashboard() {
       </div>
 
       {/* Game Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Fun Mode Stats */}
         <div className="glass-effect rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-4">Game Statistics</h2>
+          <h2 className="text-xl font-bold mb-4">Fun Mode</h2>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span>Total Games</span>
-              <span className="font-bold">{stats?.games?.totalGames || 0}</span>
+              <span>Games</span>
+              <span className="font-bold">{stats?.games?.funMode?.games || 0}</span>
             </div>
             <div className="flex justify-between">
-              <span>Total Wins</span>
-              <span className="font-bold text-green-400">{stats?.games?.totalWins || 0}</span>
+              <span>Wins</span>
+              <span className="font-bold text-green-400">{stats?.games?.funMode?.wins || 0}</span>
             </div>
             <div className="flex justify-between">
-              <span>Fun Games</span>
-              <span className="font-bold text-yellow-400">{stats?.games?.funGames || 0}</span>
+              <span>Win Rate</span>
+              <span className="font-bold">{(stats?.games?.funMode?.winRate ?? 0).toFixed(2)}%</span>
             </div>
             <div className="flex justify-between">
-              <span>USDT Games</span>
-              <span className="font-bold text-green-400">{stats?.games?.usdtGames || 0}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Total Bet Amount</span>
-              <span className="font-bold">${stats?.games?.totalBet?.toFixed(2) || 0}</span>
+              <span>Total Bet</span>
+              <span className="font-bold text-yellow-300">{(stats?.games?.funMode?.totalBet ?? 0).toFixed(0)} Fun</span>
             </div>
             <div className="flex justify-between">
               <span>Total Payout</span>
-              <span className="font-bold text-red-400">${stats?.games?.totalPayout?.toFixed(2) || 0}</span>
+              <span className="font-bold text-yellow-300">{(stats?.games?.funMode?.totalPayout ?? 0).toFixed(0)} Fun</span>
+            </div>
+            <div className="flex justify-between">
+              <span>House Edge</span>
+              <span className="font-bold text-blue-300">{(stats?.games?.funMode?.houseEdge ?? 0).toFixed(2)}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* USDT Mode Stats */}
+        <div className="glass-effect rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">USDT Mode</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span>Games</span>
+              <span className="font-bold">{stats?.games?.usdtMode?.games || 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Wins</span>
+              <span className="font-bold text-green-400">{stats?.games?.usdtMode?.wins || 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Win Rate</span>
+              <span className="font-bold">{(stats?.games?.usdtMode?.winRate ?? 0).toFixed(2)}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Bet</span>
+              <span className="font-bold">${(stats?.games?.usdtMode?.totalBet ?? 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Payout</span>
+              <span className="font-bold text-red-400">${(stats?.games?.usdtMode?.totalPayout ?? 0).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>House Edge</span>
+              <span className="font-bold text-blue-300">{(stats?.games?.usdtMode?.houseEdge ?? 0).toFixed(2)}%</span>
             </div>
           </div>
         </div>
