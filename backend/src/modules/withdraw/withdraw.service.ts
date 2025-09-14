@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WithdrawRequest, WithdrawStatus } from '../../entities/withdraw-request.entity';
@@ -73,45 +73,49 @@ export class WithdrawService {
     // Get user
     const user = await this.userService.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
     
     // Check if user is registered
     if (user.type !== UserType.REGISTERED) {
-      throw new Error('Only registered users can withdraw');
+      throw new BadRequestException('Only registered users can withdraw');
     }
 
     // Maintenance mode
     const maintenance = await this.getConfigBoolean('maintenance_mode', false)
     if (maintenance) {
-      throw new Error('System under maintenance')
+      throw new BadRequestException('System under maintenance')
     }
 
     // Enforce min/max withdraw
     const minWithdraw = await this.getConfigNumber('min_withdraw', 10)
     const maxWithdraw = await this.getConfigNumber('max_withdraw', 1000)
-    if (Number(amount) < minWithdraw) {
-      throw new Error(`Minimum withdraw is ${minWithdraw}`)
+    const amt = Number(amount)
+    if (!Number.isFinite(amt) || amt <= 0) {
+      throw new BadRequestException('Invalid withdraw amount')
     }
-    if (Number(amount) > maxWithdraw) {
-      throw new Error(`Maximum withdraw is ${maxWithdraw}`)
+    if (amt < minWithdraw) {
+      throw new BadRequestException(`Minimum withdraw is ${minWithdraw}`)
+    }
+    if (amt > maxWithdraw) {
+      throw new BadRequestException(`Maximum withdraw is ${maxWithdraw}`)
     }
     
     // Check balance
-    if (user.balanceUsdt < amount) {
-      throw new Error('Insufficient USDT balance');
+    if (Number(user.balanceUsdt) < amt) {
+      throw new BadRequestException('Insufficient USDT balance');
     }
     
     // Create withdraw request
     const withdrawRequest = this.withdrawRequestRepository.create({
       userId,
-      amount,
+      amount: amt,
       toAddress,
       status: WithdrawStatus.PENDING,
     });
     
     // Deduct balance immediately
-    await this.userService.updateBalance(userId, undefined, Number(user.balanceUsdt) - amount);
+    await this.userService.updateBalance(userId, undefined, Number(user.balanceUsdt) - amt);
     
     return await this.withdrawRequestRepository.save(withdrawRequest);
   }
