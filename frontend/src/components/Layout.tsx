@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 export default function Layout() {
-  const { user, logout, refreshProfile } = useAuthStore()
+  const { user, token, logout, refreshProfile, updateBalance } = useAuthStore()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -39,6 +39,28 @@ export default function Layout() {
       if (timer) clearInterval(timer)
     }
   }, [refreshProfile])
+
+  // SSE: subscribe to real-time user events (e.g., balance_update)
+  useEffect(() => {
+    if (!token) return
+    const es = new EventSource(`/api/events/user?token=${encodeURIComponent(token)}`)
+    const onBalance = (evt: MessageEvent) => {
+      try {
+        const payload = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data
+        if (payload && (payload.balanceFun !== undefined || payload.balanceUsdt !== undefined)) {
+          updateBalance?.(payload.balanceFun, payload.balanceUsdt)
+        }
+      } catch {}
+    }
+    es.addEventListener('balance_update', onBalance as any)
+    es.onerror = () => {
+      // Let EventSource auto-reconnect; no action needed
+    }
+    return () => {
+      es.removeEventListener('balance_update', onBalance as any)
+      es.close()
+    }
+  }, [token, updateBalance])
 
   return (
     <div className="min-h-screen">

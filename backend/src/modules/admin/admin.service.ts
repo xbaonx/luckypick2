@@ -6,6 +6,7 @@ import { CronService } from '../cron/cron.service';
 import { UserService } from '../user/user.service';
 import { GameService } from '../game/game.service';
 import { WithdrawService } from '../withdraw/withdraw.service';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class AdminService implements OnModuleInit {
@@ -16,6 +17,7 @@ export class AdminService implements OnModuleInit {
     private gameService: GameService,
     private withdrawService: WithdrawService,
     private cronService: CronService,
+    private eventsService: EventsService,
   ) {}
 
   async onModuleInit() {
@@ -121,6 +123,14 @@ export class AdminService implements OnModuleInit {
 
   async updateUserBalance(userId: string, balanceFun?: number, balanceUsdt?: number) {
     // Delegate to UserService; supports partial updates
-    return await this.userService.updateBalance(userId, balanceFun, balanceUsdt)
+    const updated = await this.userService.updateBalance(userId, balanceFun, balanceUsdt)
+    // Emit SSE event to the affected user so their UI updates in real-time
+    try {
+      this.eventsService.emitToUser(userId, 'balance_update', {
+        balanceFun: updated.balanceFun,
+        balanceUsdt: updated.balanceUsdt,
+      })
+    } catch {}
+    return updated
   }
 }

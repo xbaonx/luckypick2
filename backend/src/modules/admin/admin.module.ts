@@ -9,6 +9,7 @@ import { WithdrawModule } from '../withdraw/withdraw.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { CronModule } from '../cron/cron.module';
 import { MetricsModule } from '../metrics/metrics.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MetricsModule } from '../metrics/metrics.module';
     WalletModule,
     CronModule,
     MetricsModule,
+    EventsModule,
   ],
   providers: [AdminService],
   controllers: [AdminController],

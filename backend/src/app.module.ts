@@ -13,6 +13,7 @@ import { WithdrawModule } from './modules/withdraw/withdraw.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
+import { EventsModule } from './modules/events/events.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { MetricsModule } from './modules/metrics/metrics.module';
     WithdrawModule,
     AdminModule,
     MetricsModule,
+    EventsModule,
   ],
 })
 export class AppModule {}
