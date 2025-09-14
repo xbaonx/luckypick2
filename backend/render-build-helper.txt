@@ -1,0 +1,2 @@
+This file forces a clean rebuild on Render.
+Version: 2025-09-14-1405
