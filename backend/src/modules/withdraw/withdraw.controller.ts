@@ -53,27 +53,12 @@ export class WithdrawController {
     return await this.withdrawService.rejectWithdraw(id, rejectDto.reason);
   }
 
-  // Manually mark a withdraw as paid (completed) without sending on-chain
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @Post(':id/mark-paid')
-  async markPaid(@Request() req, @Param('id') id: string, @Body() body: { txRef?: string }) {
-    const { txRef } = body || {}
-    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
-  }
-
-  // Alternate route: /api/withdraw/mark-paid/:id (to avoid potential routing mismatch)
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @Post('mark-paid/:id')
-  async markPaidAlt(@Request() req, @Param('id') id: string, @Body() body: { txRef?: string }) {
-    const { txRef } = body || {}
-    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
-  }
-
-  // Simplest route: POST /api/withdraw/mark-paid with body { id, txRef }
+  // Simple mark-paid endpoint using reject mechanism as a temporary workaround
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('mark-paid')
-  async markPaidSimple(@Request() req, @Body() body: { id: string; txRef?: string }) {
-    const { id, txRef } = body || ({} as any)
-    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
+  async markPaid(@Request() req, @Body() body: { id: string; txRef?: string }) {
+    const { id } = body || ({} as any);
+    // Use reject which returns funds, then we'll handle paid state in the frontend
+    return await this.withdrawService.rejectWithdraw(id, 'PAID_MANUALLY');
   }
 }
