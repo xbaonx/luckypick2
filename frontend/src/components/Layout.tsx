@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   PlayCircleIcon,
   ClockIcon,
@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 export default function Layout() {
-  const { user, logout } = useAuthStore()
+  const { user, logout, refreshProfile } = useAuthStore()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -21,6 +21,24 @@ export default function Layout() {
     logout()
     navigate('/')
   }
+
+  // Keep user profile fresh so balances reflect admin edits
+  useEffect(() => {
+    let timer: any
+    const onFocus = () => {
+      refreshProfile?.()
+    }
+    // Initial fetch
+    refreshProfile?.()
+    // Focus listener
+    window.addEventListener('focus', onFocus)
+    // Periodic refresh every 60s
+    timer = setInterval(() => refreshProfile?.(), 60000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      if (timer) clearInterval(timer)
+    }
+  }, [refreshProfile])
 
   return (
     <div className="min-h-screen">

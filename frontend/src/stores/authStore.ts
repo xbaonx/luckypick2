@@ -21,6 +21,7 @@ interface AuthState {
   loginAsGuest: () => Promise<void>
   logout: () => void
   updateBalance: (balanceFun?: number, balanceUsdt?: number) => void
+  refreshProfile: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -94,6 +95,21 @@ export const useAuthStore = create<AuthState>()(
             balanceUsdt: balanceUsdt !== undefined ? balanceUsdt : state.user.balanceUsdt,
           } : null
         }))
+      },
+
+      refreshProfile: async () => {
+        try {
+          const res = await api.get('/auth/profile')
+          const user = res.data
+          if (!user) return
+          const normalizedUser = {
+            ...user,
+            type: user?.type ?? (user?.email ? 'registered' : 'guest'),
+          }
+          set({ user: normalizedUser })
+        } catch (e) {
+          // ignore; interceptor will handle auth errors
+        }
       },
     }),
     {

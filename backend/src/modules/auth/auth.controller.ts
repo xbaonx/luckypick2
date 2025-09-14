@@ -4,10 +4,11 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserService } from '../user/user.service';
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private userService: UserService) {}
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -23,7 +24,12 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    return req.user;
+    // Return a fresh user snapshot from DB so balances and flags are up to date
+    return this.userService.findById(req.user.id).then((user) => {
+      if (!user) return null
+      const { passwordHash, ...safe } = user as any
+      return safe
+    })
   }
 
   @Post('guest')
