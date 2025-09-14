@@ -53,12 +53,42 @@ export class WithdrawController {
     return await this.withdrawService.rejectWithdraw(id, rejectDto.reason);
   }
 
-  // Simple mark-paid endpoint using reject mechanism as a temporary workaround
+  // Manual mark as paid (follows approveWithdraw logic but skips on-chain transfer)
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('mark-paid')
   async markPaid(@Request() req, @Body() body: { id: string; txRef?: string }) {
-    const { id } = body || ({} as any);
-    // Use reject which returns funds, then we'll handle paid state in the frontend
-    return await this.withdrawService.rejectWithdraw(id, 'PAID_MANUALLY');
+    const { id, txRef } = body || ({} as any);
+    const adminId = req.user.id;
+    
+    // Copy approveWithdraw logic but skip the actual transaction
+    const request = await this.withdrawService.findWithdrawRequest(id);
+    
+    if (!request) {
+      throw new Error('Withdraw request not found');
+    }
+    
+    if (request.status !== 'pending') {
+      throw new Error('Request is not pending');
+    }
+    
+    // Set as completed (like approve) but with manual txHash
+    await this.withdrawService.updateWithdrawStatus(id, {
+      status: 'completed',
+      txHash: txRef || 'manual-payment',
+      approvedBy: adminId
+    });
+    
+    // Create tx history like approve does
+    await this.withdrawService.createManualTxHistory({
+      userId: request.userId,
+      type: 'withdraw',
+      txHash: txRef || 'manual-payment',
+      fromAddress: 'manual',
+      toAddress: request.toAddress,
+      amount: request.amount,
+      status: 'confirmed'
+    });
+    
+    return { success: true, message: 'Marked as paid manually' };
   }
 }

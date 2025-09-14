@@ -158,14 +158,9 @@ export default function WithdrawPage() {
                       <span className={`px-2 py-1 rounded text-xs ${
                         request.status === 'completed' ? 'bg-green-500/20 text-green-400' :
                         request.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                        // Special case for manually paid withdrawals (marked as rejected with special reason)
-                        (request.status === 'rejected' && request.rejectReason === 'PAID_MANUALLY') ? 
-                        'bg-green-500/20 text-green-400' :
                         'bg-red-500/20 text-red-400'
                       }`}>
-                        {/* Special display for manually paid withdrawals */}
-                        {(request.status === 'rejected' && request.rejectReason === 'PAID_MANUALLY') ? 
-                          'completed (manual)' : request.status}
+                        {request.status}
                       </span>
                     </td>
                     <td className="py-2">

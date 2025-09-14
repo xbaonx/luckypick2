@@ -187,6 +187,63 @@ export class WithdrawService {
     }
   }
 
+  // Mark as paid manually (no on-chain transfer)
+  async manualMarkPaid(requestId: string, adminId: string, txRef?: string): Promise<WithdrawRequest> {
+    const request = await this.withdrawRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['user'],
+    })
+    if (!request) {
+      throw new BadRequestException('Withdraw request not found')
+    }
+    if (request.status !== WithdrawStatus.PENDING) {
+      throw new BadRequestException('Request is not pending')
+    }
+
+    request.status = WithdrawStatus.COMPLETED
+    request.txHash = txRef || 'manual'
+    request.approvedBy = adminId
+    await this.withdrawRequestRepository.save(request)
+
+    // Record a manual tx history for audit
+    const txHistory = this.txHistoryRepository.create({
+      userId: request.userId,
+      type: TxType.WITHDRAW,
+      txHash: request.txHash,
+      fromAddress: 'manual',
+      toAddress: request.toAddress,
+      amount: request.amount,
+      status: TxStatus.CONFIRMED,
+    })
+    await this.txHistoryRepository.save(txHistory)
+
+    return request
+  }
+
+  async findWithdrawRequest(requestId: string): Promise<WithdrawRequest | null> {
+    return await this.withdrawRequestRepository.findOne({
+      where: { id: requestId },
+      relations: ['user'],
+    });
+  }
+
+  async updateWithdrawStatus(requestId: string, updates: { status: string; txHash?: string; approvedBy?: string }): Promise<void> {
+    await this.withdrawRequestRepository.update(requestId, updates);
+  }
+
+  async createManualTxHistory(data: { userId: string; type: string; txHash: string; fromAddress: string; toAddress: string; amount: number; status: string }): Promise<void> {
+    const txHistory = this.txHistoryRepository.create({
+      userId: data.userId,
+      type: TxType.WITHDRAW,
+      txHash: data.txHash,
+      fromAddress: data.fromAddress,
+      toAddress: data.toAddress,
+      amount: data.amount,
+      status: TxStatus.CONFIRMED,
+    });
+    await this.txHistoryRepository.save(txHistory);
+  }
+
   async rejectWithdraw(requestId: string, reason: string): Promise<WithdrawRequest> {
     const request = await this.withdrawRequestRepository.findOne({
       where: { id: requestId },
