@@ -13,19 +13,7 @@ export default function AdminWithdraws() {
     },
   })
 
-  const approveMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await api.post(`/withdraw/${id}/approve`)
-      return response.data
-    },
-    onSuccess: () => {
-      toast.success('Withdrawal approved successfully')
-      queryClient.invalidateQueries({ queryKey: ['adminWithdraws'] })
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to approve withdrawal')
-    },
-  })
+  // Approve temporarily disabled (manual processing). Keep only Reject.
 
   const rejectMutation = useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
@@ -41,11 +29,7 @@ export default function AdminWithdraws() {
     },
   })
 
-  const handleApprove = (id: string) => {
-    if (confirm('Are you sure you want to approve this withdrawal?')) {
-      approveMutation.mutate(id)
-    }
-  }
+  // Approve handler removed
 
   const handleReject = (id: string) => {
     const reason = prompt('Enter rejection reason:')
@@ -102,13 +86,7 @@ export default function AdminWithdraws() {
                     </td>
                     <td className="py-2">
                       <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleApprove(request.id)}
-                          disabled={approveMutation.isPending}
-                          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 px-3 py-1 rounded text-sm transition"
-                        >
-                          Approve
-                        </button>
+                        {/* Approve button removed (manual processing) */}
                         <button
                           onClick={() => handleReject(request.id)}
                           disabled={rejectMutation.isPending}
@@ -131,11 +109,11 @@ export default function AdminWithdraws() {
       <div className="glass-effect rounded-xl p-6 mt-6">
         <h3 className="text-lg font-bold mb-4">⚠️ Important Notes</h3>
         <ul className="space-y-2 text-sm text-gray-300">
-          <li>• Always verify the withdrawal address before approving</li>
-          <li>• Check user's balance and transaction history</li>
-          <li>• Approved withdrawals will be processed immediately</li>
-          <li>• Rejected withdrawals will refund the amount to user's balance</li>
-          <li>• Make sure the admin wallet has sufficient USDT and gas</li>
+          <li>• Approve is temporarily disabled — process withdrawals manually using the admin wallet.</li>
+          <li>• Always verify the withdrawal address before sending funds.</li>
+          <li>• Check user's balance and transaction history.</li>
+          <li>• Use Reject to cancel a request and refund the amount to the user's balance.</li>
+          <li>• Ensure the admin wallet has sufficient USDT and gas.</li>
         </ul>
       </div>
     </div>

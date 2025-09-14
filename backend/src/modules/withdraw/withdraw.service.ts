@@ -67,6 +67,19 @@ export class WithdrawService {
     return fallback;
   }
 
+  // Expose current withdraw limits for authenticated users (non-admin)
+  async getWithdrawLimits(): Promise<{ minWithdraw: number; maxWithdraw: number }> {
+    // Bypass in-memory cache so changes in Admin reflect immediately
+    const minRec = await this.adminConfigRepository.findOne({ where: { key: 'min_withdraw' } })
+    const maxRec = await this.adminConfigRepository.findOne({ where: { key: 'max_withdraw' } })
+    const min = Number(minRec?.value)
+    const max = Number(maxRec?.value)
+    return {
+      minWithdraw: Number.isFinite(min) ? min : 10,
+      maxWithdraw: Number.isFinite(max) ? max : 1000,
+    }
+  }
+
   async createWithdrawRequest(userId: string, createWithdrawDto: CreateWithdrawDto): Promise<WithdrawRequest> {
     const { amount, toAddress } = createWithdrawDto;
     

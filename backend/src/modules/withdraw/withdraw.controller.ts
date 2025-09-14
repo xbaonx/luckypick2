@@ -17,6 +17,12 @@ export class WithdrawController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('limits')
+  async getWithdrawLimits() {
+    return await this.withdrawService.getWithdrawLimits();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('my-requests')
   async getMyWithdrawRequests(@Request() req) {
     return await this.withdrawService.getUserWithdrawRequests(req.user.id);
