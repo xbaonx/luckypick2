@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import api from '../../services/api'
 
 export default function AdminGameHistory() {
@@ -9,6 +10,20 @@ export default function AdminGameHistory() {
       return response.data
     },
   })
+
+  // Pagination state
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+  const total = games?.length || 0
+  const pageCount = Math.max(1, Math.ceil(total / pageSize))
+  const current = Math.min(page, pageCount)
+  const visible = useMemo(() => {
+    return (games || []).slice((current - 1) * pageSize, current * pageSize)
+  }, [games, current])
+
+  useEffect(() => {
+    setPage(1)
+  }, [total])
 
   if (isLoading) {
     return <div className="text-white text-center">Loading game history...</div>
@@ -23,6 +38,14 @@ export default function AdminGameHistory() {
         
         {games && games.length > 0 ? (
           <div className="overflow-x-auto">
+            {/* Top Pagination */}
+            <div className="flex items-center justify-between mb-2 text-sm bg-white/5 rounded-lg px-3 py-2">
+              <div>Page {current} of {pageCount}</div>
+              <div className="flex gap-2">
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded">Prev</button>
+                <button onClick={() => setPage((p) => Math.min(pageCount, p + 1))} className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded">Next</button>
+              </div>
+            </div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/20">
@@ -37,7 +60,7 @@ export default function AdminGameHistory() {
                 </tr>
               </thead>
               <tbody>
-                {games.map((game: any) => (
+                {visible.map((game: any) => (
                   <tr key={game.id} className="border-b border-white/10">
                     <td className="py-2">
                       {new Date(game.createdAt).toLocaleString()}
@@ -90,6 +113,14 @@ export default function AdminGameHistory() {
                 ))}
               </tbody>
             </table>
+            {/* Bottom Pagination */}
+            <div className="flex items-center justify-between mt-3 text-sm">
+              <div>Page {current} of {pageCount}</div>
+              <div className="flex gap-2">
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded">Prev</button>
+                <button onClick={() => setPage((p) => Math.min(pageCount, p + 1))} className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded">Next</button>
+              </div>
+            </div>
           </div>
         ) : (
           <p className="text-gray-300">No games played yet</p>
