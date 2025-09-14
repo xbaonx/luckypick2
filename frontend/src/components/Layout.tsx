@@ -8,6 +8,8 @@ import {
   ArrowUpCircleIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
+  SparklesIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline'
 
 export default function Layout() {
@@ -71,12 +73,14 @@ export default function Layout() {
               {user ? (
                 <>
                   <div className="flex items-center space-x-4 text-sm">
-                    <div className="bg-yellow-500/20 px-3 py-1 rounded-full">
-                      🪙 {user.balanceFun.toFixed(0)} Fun
+                    <div className="bg-yellow-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                      <SparklesIcon className="h-4 w-4" />
+                      <span>{user.balanceFun.toFixed(0)} Fun</span>
                     </div>
                     {user.type === 'registered' && (
-                      <div className="bg-green-500/20 px-3 py-1 rounded-full">
-                        💵 {user.balanceUsdt.toFixed(2)} USDT
+                      <div className="bg-green-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                        <CurrencyDollarIcon className="h-4 w-4" />
+                        <span>{user.balanceUsdt.toFixed(2)} USDT</span>
                       </div>
                     )}
                   </div>
@@ -108,6 +112,23 @@ export default function Layout() {
               )}
             </div>
           </div>
+          {/* Mobile balances under header row (inside sticky navbar) */}
+          {user && (
+            <div className="md:hidden pb-2">
+              <div className="flex flex-wrap items-center gap-2 text-base font-semibold">
+                <div className="bg-yellow-500/20 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                  <SparklesIcon className="h-5 w-5" />
+                  <span>{user.balanceFun.toFixed(0)} Fun</span>
+                </div>
+                {user.type === 'registered' && (
+                  <div className="bg-green-500/20 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                    <CurrencyDollarIcon className="h-5 w-5" />
+                    <span>{user.balanceUsdt.toFixed(2)} USDT</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         {/* Mobile dropdown menu */}
         {menuOpen && (
@@ -153,21 +174,6 @@ export default function Layout() {
           </div>
         )}
       </nav>
-      {/* Mobile balance strip */}
-      {user && (
-        <div className="md:hidden px-4 pb-2">
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <div className="bg-yellow-500/20 px-2.5 py-1 rounded-full">
-              🪙 {user.balanceFun.toFixed(0)} Fun
-            </div>
-            {user.type === 'registered' && (
-              <div className="bg-green-500/20 px-2.5 py-1 rounded-full">
-                💵 {user.balanceUsdt.toFixed(2)} USDT
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
