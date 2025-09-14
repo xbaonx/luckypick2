@@ -19,7 +19,7 @@ export default function Layout() {
               <Link to="/" className="text-2xl font-bold text-yellow-400">
                 🎰 LuckyPick2
               </Link>
-              <div className="hidden md:flex space-x-4">
+              <div className="flex flex-wrap gap-4">
                 <Link to="/game" className="hover:text-yellow-400 transition">Play</Link>
                 {user && (
                   <>
