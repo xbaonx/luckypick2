@@ -31,11 +31,30 @@ export default function AdminWithdraws() {
 
   // Approve handler removed
 
+  const markPaidMutation = useMutation({
+    mutationFn: async ({ id, txRef }: { id: string; txRef?: string }) => {
+      const response = await api.post(`/withdraw/${id}/mark-paid`, { txRef })
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Marked as paid')
+      queryClient.invalidateQueries({ queryKey: ['adminWithdraws'] })
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to mark as paid')
+    },
+  })
+
   const handleReject = (id: string) => {
     const reason = prompt('Enter rejection reason:')
     if (reason) {
       rejectMutation.mutate({ id, reason })
     }
+  }
+
+  const handleMarkPaid = (id: string) => {
+    const txRef = prompt('Optional: enter external TX reference or note')
+    markPaidMutation.mutate({ id, txRef: txRef || undefined })
   }
 
   if (isLoading) {
@@ -44,7 +63,11 @@ export default function AdminWithdraws() {
 
   return (
     <div className="text-white">
-      <h1 className="text-3xl font-bold mb-8">Withdrawal Management</h1>
+      <div className="flex items-end justify-between mb-2">
+        <h1 className="text-3xl font-bold">Withdrawal Management</h1>
+        <span className="text-xs text-gray-300">UI v-20250914-2</span>
+      </div>
+      <div className="h-4" />
 
       <div className="glass-effect rounded-xl p-6">
         <h2 className="text-xl font-bold mb-4">Pending Withdrawals</h2>
@@ -88,6 +111,13 @@ export default function AdminWithdraws() {
                       <div className="flex space-x-2">
                         {/* Approve button removed (manual processing) */}
                         <button
+                          onClick={() => handleMarkPaid(request.id)}
+                          disabled={markPaidMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700 disabled:opacity-50 px-3 py-1 rounded text-sm transition"
+                        >
+                          Đánh dấu đã trả (Thủ công)
+                        </button>
+                        <button
                           onClick={() => handleReject(request.id)}
                           disabled={rejectMutation.isPending}
                           className="bg-red-500 hover:bg-red-600 disabled:opacity-50 px-3 py-1 rounded text-sm transition"
@@ -110,6 +140,7 @@ export default function AdminWithdraws() {
         <h3 className="text-lg font-bold mb-4">⚠️ Important Notes</h3>
         <ul className="space-y-2 text-sm text-gray-300">
           <li>• Approve is temporarily disabled — process withdrawals manually using the admin wallet.</li>
+          <li>• Use "Mark as Paid" after you have sent funds externally to mark the request completed.</li>
           <li>• Always verify the withdrawal address before sending funds.</li>
           <li>• Check user's balance and transaction history.</li>
           <li>• Use Reject to cancel a request and refund the amount to the user's balance.</li>
