@@ -227,7 +227,7 @@ export class WithdrawService {
     });
   }
 
-  async updateWithdrawStatus(requestId: string, updates: { status: string; txHash?: string; approvedBy?: string }): Promise<void> {
+  async updateWithdrawStatus(requestId: string, updates: { status: WithdrawStatus; txHash?: string; approvedBy?: string }): Promise<void> {
     await this.withdrawRequestRepository.update(requestId, updates);
   }
 

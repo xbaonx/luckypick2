@@ -5,6 +5,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { ApproveWithdrawDto } from './dto/approve-withdraw.dto';
 import { RejectWithdrawDto } from './dto/reject-withdraw.dto';
+import { WithdrawStatus } from '../../entities/withdraw-request.entity';
 
 @Controller('api/withdraw')
 export class WithdrawController {
@@ -67,13 +68,13 @@ export class WithdrawController {
       throw new Error('Withdraw request not found');
     }
     
-    if (request.status !== 'pending') {
+    if (request.status !== WithdrawStatus.PENDING) {
       throw new Error('Request is not pending');
     }
     
     // Set as completed (like approve) but with manual txHash
     await this.withdrawService.updateWithdrawStatus(id, {
-      status: 'completed',
+      status: WithdrawStatus.COMPLETED,
       txHash: txRef || 'manual-payment',
       approvedBy: adminId
     });
