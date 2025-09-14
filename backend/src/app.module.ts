@@ -14,6 +14,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { EventsModule } from './modules/events/events.module';
+import { VersionModule } from './modules/version/version.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { EventsModule } from './modules/events/events.module';
     AdminModule,
     MetricsModule,
     EventsModule,
+    VersionModule,
   ],
 })
 export class AppModule {}
