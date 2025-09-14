@@ -1,6 +1,14 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { useState } from 'react'
+import {
+  PlayCircleIcon,
+  ClockIcon,
+  BanknotesIcon,
+  ArrowUpCircleIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
+} from '@heroicons/react/24/outline'
 
 export default function Layout() {
   const { user, logout } = useAuthStore()
@@ -23,14 +31,26 @@ export default function Layout() {
               </Link>
               {/* Desktop nav links */}
               <div className="hidden md:flex gap-4">
-                <Link to="/game" className="hover:text-yellow-400 transition">Play</Link>
+                <Link to="/game" className="hover:text-yellow-400 transition inline-flex items-center gap-1.5">
+                  <PlayCircleIcon className="h-5 w-5" />
+                  <span>Play</span>
+                </Link>
                 {user && (
                   <>
-                    <Link to="/history" className="hover:text-yellow-400 transition">History</Link>
+                    <Link to="/history" className="hover:text-yellow-400 transition inline-flex items-center gap-1.5">
+                      <ClockIcon className="h-5 w-5" />
+                      <span>History</span>
+                    </Link>
                     {user.type === 'registered' && (
                       <>
-                        <Link to="/deposit" className="hover:text-yellow-400 transition">Deposit</Link>
-                        <Link to="/withdraw" className="hover:text-yellow-400 transition">Withdraw</Link>
+                        <Link to="/deposit" className="hover:text-yellow-400 transition inline-flex items-center gap-1.5">
+                          <BanknotesIcon className="h-5 w-5" />
+                          <span>Deposit</span>
+                        </Link>
+                        <Link to="/withdraw" className="hover:text-yellow-400 transition inline-flex items-center gap-1.5">
+                          <ArrowUpCircleIcon className="h-5 w-5" />
+                          <span>Withdraw</span>
+                        </Link>
                       </>
                     )}
                   </>
@@ -110,14 +130,16 @@ export default function Layout() {
               <div className="border-t border-white/10 pt-3 flex items-center justify-between">
                 {user ? (
                   <>
-                    <Link to="/profile" onClick={() => setMenuOpen(false)} className="hover:text-yellow-400">
-                      {user.email || 'Guest'}
+                    <Link to="/profile" onClick={() => setMenuOpen(false)} className="hover:text-yellow-400 inline-flex items-center gap-2">
+                      <UserCircleIcon className="h-5 w-5" />
+                      <span>{user.email || 'Guest'}</span>
                     </Link>
                     <button
                       onClick={() => { setMenuOpen(false); handleLogout() }}
-                      className="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition"
+                      className="bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition inline-flex items-center gap-2"
                     >
-                      Logout
+                      <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                      <span>Logout</span>
                     </button>
                   </>
                 ) : (
@@ -131,6 +153,21 @@ export default function Layout() {
           </div>
         )}
       </nav>
+      {/* Mobile balance strip */}
+      {user && (
+        <div className="md:hidden px-4 pb-2">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="bg-yellow-500/20 px-2.5 py-1 rounded-full">
+              🪙 {user.balanceFun.toFixed(0)} Fun
+            </div>
+            {user.type === 'registered' && (
+              <div className="bg-green-500/20 px-2.5 py-1 rounded-full">
+                💵 {user.balanceUsdt.toFixed(2)} USDT
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
