@@ -118,4 +118,9 @@ export class AdminService implements OnModuleInit {
       withdrawRequests,
     };
   }
+
+  async updateUserBalance(userId: string, balanceFun?: number, balanceUsdt?: number) {
+    // Delegate to UserService; supports partial updates
+    return await this.userService.updateBalance(userId, balanceFun, balanceUsdt)
+  }
 }

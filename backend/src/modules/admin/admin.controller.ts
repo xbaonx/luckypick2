@@ -55,4 +55,14 @@ export class AdminController {
   async getCtaSummary(@Query('name') name?: string) {
     return await this.metricsService.getCtaSummary(name);
   }
+
+  // ---- User admin actions ----
+  @Put('user/:id/balance')
+  async updateUserBalance(
+    @Param('id') id: string,
+    @Body() body: { balanceFun?: number; balanceUsdt?: number },
+  ) {
+    const { balanceFun, balanceUsdt } = body || {}
+    return await this.adminService.updateUserBalance(id, balanceFun, balanceUsdt)
+  }
 }
