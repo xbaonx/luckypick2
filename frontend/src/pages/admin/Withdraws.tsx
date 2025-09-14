@@ -33,8 +33,27 @@ export default function AdminWithdraws() {
 
   const markPaidMutation = useMutation({
     mutationFn: async ({ id, txRef }: { id: string; txRef?: string }) => {
-      const response = await api.post(`/withdraw/${id}/mark-paid`, { txRef })
-      return response.data
+      try {
+        // Primary route
+        const response = await api.post(`/withdraw/mark-paid/${id}`, { txRef })
+        return response.data
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          try {
+            // Fallback to legacy/alternate route
+            const res2 = await api.post(`/withdraw/${id}/mark-paid`, { txRef })
+            return res2.data
+          } catch (err2: any) {
+            if (err2?.response?.status === 404) {
+              // Final fallback: body-based route
+              const res3 = await api.post(`/withdraw/mark-paid`, { id, txRef })
+              return res3.data
+            }
+            throw err2
+          }
+        }
+        throw err
+      }
     },
     onSuccess: () => {
       toast.success('Marked as paid')

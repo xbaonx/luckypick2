@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { WithdrawService } from './withdraw.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
@@ -43,12 +43,37 @@ export class WithdrawController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post(':id/approve')
   async approveWithdraw(@Request() req, @Param('id') id: string) {
-    return await this.withdrawService.approveWithdraw(id, req.user.id);
+    // Temporarily disabled to avoid accidental on-chain transfers
+    throw new ForbiddenException('Approve is temporarily disabled. Please process manually.');
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post(':id/reject')
   async rejectWithdraw(@Param('id') id: string, @Body() rejectDto: RejectWithdrawDto) {
     return await this.withdrawService.rejectWithdraw(id, rejectDto.reason);
+  }
+
+  // Manually mark a withdraw as paid (completed) without sending on-chain
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Post(':id/mark-paid')
+  async markPaid(@Request() req, @Param('id') id: string, @Body() body: { txRef?: string }) {
+    const { txRef } = body || {}
+    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
+  }
+
+  // Alternate route: /api/withdraw/mark-paid/:id (to avoid potential routing mismatch)
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Post('mark-paid/:id')
+  async markPaidAlt(@Request() req, @Param('id') id: string, @Body() body: { txRef?: string }) {
+    const { txRef } = body || {}
+    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
+  }
+
+  // Simplest route: POST /api/withdraw/mark-paid with body { id, txRef }
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Post('mark-paid')
+  async markPaidSimple(@Request() req, @Body() body: { id: string; txRef?: string }) {
+    const { id, txRef } = body || ({} as any)
+    return await this.withdrawService.manualMarkPaid(id, req.user.id, txRef)
   }
 }
