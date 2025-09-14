@@ -135,14 +135,26 @@ export default function Layout() {
           <div className="md:hidden px-4 pb-3">
             <div className="glass-effect rounded-xl p-4 space-y-3">
               <div className="flex flex-col">
-                <Link to="/game" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400">Play</Link>
+                <Link to="/game" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400 inline-flex items-center gap-2">
+                  <PlayCircleIcon className="h-5 w-5" />
+                  <span>Play</span>
+                </Link>
                 {user && (
                   <>
-                    <Link to="/history" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400">History</Link>
+                    <Link to="/history" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400 inline-flex items-center gap-2">
+                      <ClockIcon className="h-5 w-5" />
+                      <span>History</span>
+                    </Link>
                     {user.type === 'registered' && (
                       <>
-                        <Link to="/deposit" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400">Deposit</Link>
-                        <Link to="/withdraw" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400">Withdraw</Link>
+                        <Link to="/deposit" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400 inline-flex items-center gap-2">
+                          <BanknotesIcon className="h-5 w-5" />
+                          <span>Deposit</span>
+                        </Link>
+                        <Link to="/withdraw" onClick={() => setMenuOpen(false)} className="py-2 hover:text-yellow-400 inline-flex items-center gap-2">
+                          <ArrowUpCircleIcon className="h-5 w-5" />
+                          <span>Withdraw</span>
+                        </Link>
                       </>
                     )}
                   </>
