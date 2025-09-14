@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline'
+import OpenInBrowserBanner from './OpenInBrowserBanner'
 
 export default function Layout() {
   const { user, token, logout, refreshProfile, updateBalance } = useAuthStore()
@@ -228,6 +229,7 @@ export default function Layout() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <OpenInBrowserBanner />
         <Outlet />
       </main>
     </div>

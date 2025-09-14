@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
+import OpenInBrowserBanner from './OpenInBrowserBanner'
 
 export default function AdminLayout() {
   const { logout } = useAuthStore()
@@ -67,6 +68,7 @@ export default function AdminLayout() {
 
       {/* Main content */}
       <div className="flex-1 p-8">
+        <OpenInBrowserBanner />
         <Outlet />
       </div>
     </div>
