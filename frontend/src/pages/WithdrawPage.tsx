@@ -20,6 +20,19 @@ export default function WithdrawPage() {
     enabled: !!user,
   })
 
+  // Fetch dynamic withdraw limits (min/max) from backend
+  const { data: limits } = useQuery({
+    queryKey: ['withdrawLimits'],
+    queryFn: async () => {
+      const res = await api.get('/withdraw/limits')
+      return res.data as { minWithdraw: number; maxWithdraw: number }
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  })
+  const minWithdraw = limits?.minWithdraw ?? 10
+  const maxWithdraw = limits?.maxWithdraw ?? 1000
+
   const withdrawMutation = useMutation({
     mutationFn: async (data: { amount: number; toAddress: string }) => {
       const response = await api.post('/withdraw/request', data)
@@ -42,8 +55,16 @@ export default function WithdrawPage() {
     e.preventDefault()
     
     const withdrawAmount = Number(amount)
-    if (withdrawAmount < 10) {
-      toast.error('Minimum withdrawal amount is 10 USDT')
+    if (!Number.isFinite(withdrawAmount) || withdrawAmount <= 0) {
+      toast.error('Enter a valid amount')
+      return
+    }
+    if (withdrawAmount < minWithdraw) {
+      toast.error(`Minimum withdrawal amount is ${minWithdraw} USDT`)
+      return
+    }
+    if (withdrawAmount > maxWithdraw) {
+      toast.error(`Maximum withdrawal amount is ${maxWithdraw} USDT`)
       return
     }
     if (withdrawAmount > user!.balanceUsdt) {
@@ -74,13 +95,13 @@ export default function WithdrawPage() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
               placeholder="Enter amount to withdraw"
-              min="10"
-              max={user.balanceUsdt.toString()}
+              min={minWithdraw.toString()}
+              max={Math.min(user.balanceUsdt, maxWithdraw).toString()}
               step="0.01"
               required
             />
             <p className="text-xs text-gray-300 mt-1">
-              Available: {user.balanceUsdt.toFixed(2)} USDT | Min: 10 USDT
+              Available: {user.balanceUsdt.toFixed(2)} USDT | Min: {minWithdraw} USDT{limits ? ` | Max: ${maxWithdraw} USDT` : ''}
             </p>
           </div>
 
@@ -122,6 +143,7 @@ export default function WithdrawPage() {
                   <th className="text-left py-2">Date</th>
                   <th className="text-left py-2">Amount</th>
                   <th className="text-left py-2">Status</th>
+                  <th className="text-left py-2">TX Ref</th>
                   <th className="text-left py-2">TX Hash</th>
                 </tr>
               </thead>
@@ -142,7 +164,12 @@ export default function WithdrawPage() {
                       </span>
                     </td>
                     <td className="py-2">
-                      {request.txHash ? (
+                      <span className="font-mono text-xs break-all">
+                        {request.txHash || '-'}
+                      </span>
+                    </td>
+                    <td className="py-2">
+                      {/^0x[a-fA-F0-9]{64}$/.test(request.txHash || '') ? (
                         <a
                           href={`https://bscscan.com/tx/${request.txHash}`}
                           target="_blank"
