@@ -9,6 +9,9 @@ export default function AdminUsers() {
   const [editFun, setEditFun] = useState<string>('')
   const [editUsdt, setEditUsdt] = useState<string>('')
   const [tab, setTab] = useState<'registered' | 'guest'>('registered')
+  const [regPage, setRegPage] = useState(1)
+  const [guestPage, setGuestPage] = useState(1)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const qc = useQueryClient()
   
   const { data: users, isLoading } = useQuery({
@@ -64,10 +67,17 @@ export default function AdminUsers() {
       toast.success('Balances updated')
       await qc.invalidateQueries({ queryKey: ['userDetails', selectedUser.id] })
       await qc.invalidateQueries({ queryKey: ['adminUsers'] })
+      setConfirmOpen(false)
     } catch (e) {
       // Error toasts handled by interceptor
     }
   }
+
+  // Reset pages when search changes
+  useEffect(() => {
+    setRegPage(1)
+    setGuestPage(1)
+  }, [query])
 
   if (isLoading) {
     return <div className="text-white text-center">Loading users...</div>
@@ -106,6 +116,29 @@ export default function AdminUsers() {
 
         {tab === 'registered' && (
           <div className="overflow-x-auto">
+            {/* Top Pagination */}
+            <div className="flex items-center justify-between mb-2 text-sm bg-white/5 rounded-lg px-3 py-2">
+              <div>
+                Page {regPage} of {Math.max(1, Math.ceil((filtered.registered?.length || 0) / 10))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setRegPage((p) => Math.max(1, p - 1))}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setRegPage((p) => {
+                    const maxP = Math.max(1, Math.ceil((filtered.registered?.length || 0) / 10))
+                    return Math.min(maxP, p + 1)
+                  })}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/20">
@@ -119,7 +152,14 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.registered?.map((user: any) => (
+                {(() => {
+                  const pageSize = 10
+                  const total = filtered.registered?.length || 0
+                  const pageCount = Math.max(1, Math.ceil(total / pageSize))
+                  const current = Math.min(regPage, pageCount)
+                  const slice = (filtered.registered || []).slice((current - 1) * pageSize, current * pageSize)
+                  return slice
+                })()?.map((user: any) => (
                   <tr key={user.id} className="border-b border-white/10">
                     <td className="py-2">
                       {user.email || `Guest-${user.id.substring(0, 8)}`}
@@ -156,11 +196,57 @@ export default function AdminUsers() {
                 ))}
               </tbody>
             </table>
+            {/* Pagination */}
+            <div className="flex items-center justify-between mt-3 text-sm">
+              <div>
+                Page {regPage} of {Math.max(1, Math.ceil((filtered.registered?.length || 0) / 10))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setRegPage((p) => Math.max(1, p - 1))}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setRegPage((p) => {
+                    const maxP = Math.max(1, Math.ceil((filtered.registered?.length || 0) / 10))
+                    return Math.min(maxP, p + 1)
+                  })}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         {tab === 'guest' && (
           <div className="overflow-x-auto">
+            {/* Top Pagination */}
+            <div className="flex items-center justify-between mb-2 text-sm bg-white/5 rounded-lg px-3 py-2">
+              <div>
+                Page {guestPage} of {Math.max(1, Math.ceil((filtered.guests?.length || 0) / 10))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setGuestPage((p) => Math.max(1, p - 1))}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setGuestPage((p) => {
+                    const maxP = Math.max(1, Math.ceil((filtered.guests?.length || 0) / 10))
+                    return Math.min(maxP, p + 1)
+                  })}
+                  className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/20">
@@ -174,7 +260,14 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.guests?.map((user: any) => (
+                {(() => {
+                  const pageSize = 10
+                  const total = filtered.guests?.length || 0
+                  const pageCount = Math.max(1, Math.ceil(total / pageSize))
+                  const current = Math.min(guestPage, pageCount)
+                  const slice = (filtered.guests || []).slice((current - 1) * pageSize, current * pageSize)
+                  return slice
+                })()?.map((user: any) => (
                   <tr key={user.id} className="border-b border-white/10">
                     <td className="py-2">
                       {`Guest-${user.id.substring(0, 8)}`}
@@ -253,7 +346,7 @@ export default function AdminUsers() {
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
                       />
                       <button
-                        onClick={handleSaveBalance}
+                        onClick={() => setConfirmOpen(true)}
                         className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition"
                       >
                         Save Balances
@@ -279,6 +372,24 @@ export default function AdminUsers() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm modal */}
+      {confirmOpen && selectedUser && userDetails && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setConfirmOpen(false)} />
+          <div className="relative glass-effect w-full max-w-md mx-4 rounded-xl p-6 z-[71]">
+            <h3 className="text-lg font-bold mb-3">Confirm balance update</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-gray-300">Fun:</span> <span>{userDetails.user.balanceFun} → <span className="text-yellow-300 font-semibold">{editFun}</span></span></div>
+              <div className="flex justify-between"><span className="text-gray-300">USDT:</span> <span>{userDetails.user.balanceUsdt} → <span className="text-yellow-300 font-semibold">{editUsdt}</span></span></div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg" onClick={() => setConfirmOpen(false)}>Cancel</button>
+              <button className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg" onClick={handleSaveBalance}>Confirm</button>
             </div>
           </div>
         </div>
