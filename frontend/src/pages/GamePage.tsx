@@ -765,7 +765,7 @@ export default function GamePage() {
       {!isPlaying && !showGuide && (
         <button
           onClick={openGuide}
-          className="fixed bottom-28 left-4 md:bottom-24 md:left-auto md:right-4 z-[90] bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-2 rounded-full shadow-lg inline-flex items-center gap-1"
+          className="fixed bottom-40 left-4 sm:bottom-32 md:bottom-24 md:left-auto md:right-4 z-[90] bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-2 rounded-full shadow-lg inline-flex items-center gap-1"
           title="Show quick guide"
         >
           <QuestionMarkCircleIcon className="h-5 w-5" />
