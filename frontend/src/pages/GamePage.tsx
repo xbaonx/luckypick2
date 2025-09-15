@@ -596,6 +596,7 @@ export default function GamePage() {
             </div>
           </div>
         </div>
+        <h4 className="text-sm font-semibold text-white/90 mb-2">Choose your lucky number</h4>
         <div className="number-grid">
           {renderNumberGrid()}
         </div>
