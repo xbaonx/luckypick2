@@ -20,6 +20,7 @@ import {
   CreditCardIcon,
   TrophyIcon,
   FaceFrownIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline'
 
 // A/B Testing CTA variants
@@ -210,8 +211,7 @@ export default function GamePage() {
             />
           )}
         </div>
-        )
-      )
+      );
     }
     return numbers
   }
@@ -388,13 +388,15 @@ export default function GamePage() {
             className="w-full flex items-center justify-between bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg px-3 py-2 text-sm transition"
           >
             <span className="font-medium">Bet Tools</span>
-            <span className={`transition-transform ${showTools ? 'rotate-180' : ''}`}>▾</span>
+            <ChevronDownIcon className={`h-5 w-5 transition-transform ${showTools ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
         {/* Collapsible: Bulk Amount + Quick tools */}
-        {showTools && (
-        <div className="mb-3.5 space-y-3">
+        <div
+          className={`mb-3.5 space-y-3 overflow-hidden transition-all duration-300 ease-in-out ${showTools ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}
+          aria-hidden={!showTools}
+        >
           {/* Bulk Amount Control - Mobile First */}
           <div className="bg-white/10 rounded-lg p-3">
             <div className="flex flex-col space-y-2">
