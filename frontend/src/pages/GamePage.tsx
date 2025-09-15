@@ -602,7 +602,16 @@ export default function GamePage() {
             </div>
           </div>
         </div>
-        <h4 className="text-sm font-semibold text-white/90 mb-2">Pick your lucky numbers</h4>
+        <h4 className="text-sm font-semibold text-white/90 mb-2 flex items-center gap-2">
+          <span>Pick your lucky numbers</span>
+          <span
+            className="inline-flex items-center gap-1 text-white/70 text-xs cursor-help"
+            title="You can select multiple numbers"
+          >
+            <QuestionMarkCircleIcon className="h-4 w-4" />
+            <span>Tip</span>
+          </span>
+        </h4>
         <div className="number-grid">
           {renderNumberGrid()}
         </div>
