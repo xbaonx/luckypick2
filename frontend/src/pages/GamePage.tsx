@@ -20,6 +20,7 @@ import {
   TrophyIcon,
   FaceFrownIcon,
   ChevronDownIcon,
+  LockClosedIcon,
 } from '@heroicons/react/24/outline'
 
 // A/B Testing CTA variants
@@ -328,17 +329,29 @@ export default function GamePage() {
                 >
                   FunCoin
                 </button>
-                {user?.type === 'registered' && (
-                  <button
-                    onClick={() => navigate('/game/usdt')}
-                    disabled={isPlaying}
-                    className={`px-2.5 py-1.5 text-sm rounded-lg transition ${
-                      mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
-                    }`}
-                  >
-                    USDT
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    if (user?.type === 'registered') {
+                      navigate('/game/usdt')
+                    } else {
+                      navigate(`/register?redirect=${encodeURIComponent('/game/usdt')}`)
+                    }
+                  }}
+                  disabled={isPlaying}
+                  className={`px-2.5 py-1.5 text-sm rounded-lg transition ${
+                    mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
+                  }`}
+                  title={user?.type === 'registered' ? 'Play with USDT' : 'Đăng ký để chơi USDT'}
+                >
+                  {user?.type === 'registered' ? (
+                    'USDT'
+                  ) : (
+                    <span className="inline-flex items-center gap-1">
+                      <LockClosedIcon className="h-4 w-4" />
+                      <span>USDT</span>
+                    </span>
+                  )}
+                </button>
               </div>
 
               {user?.type === 'registered' && (
