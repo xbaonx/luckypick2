@@ -316,27 +316,46 @@ export default function GamePage() {
       <div className="glass-effect rounded-2xl p-3.5 mb-4">
         <div className="flex flex-col justify-between gap-3.5 mb-4">
           <div className="flex flex-col items-stretch gap-3 w-full">
-            {/* Mode Selector */}
-            <div className="flex bg-white/15 rounded-lg p-0.5">
-              <button
-                onClick={() => navigate('/game/fun')}
-                disabled={isPlaying}
-                className={`px-3 py-1.5 text-sm rounded-lg transition ${
-                  mode === 'fun' ? 'bg-yellow-500 text-black' : 'text-white hover:bg-white/10'
-                }`}
-              >
-                FunCoin
-              </button>
-              {user?.type === 'registered' && (
+            {/* Mode Selector + Quick Actions */}
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex bg-white/15 rounded-lg p-0.5">
                 <button
-                  onClick={() => navigate('/game/usdt')}
+                  onClick={() => navigate('/game/fun')}
                   disabled={isPlaying}
-                  className={`px-2.5 py-1.5 text-sm rounded-lg transition ${
-                    mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
+                  className={`px-3 py-1.5 text-sm rounded-lg transition ${
+                    mode === 'fun' ? 'bg-yellow-500 text-black' : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  USDT
+                  FunCoin
                 </button>
+                {user?.type === 'registered' && (
+                  <button
+                    onClick={() => navigate('/game/usdt')}
+                    disabled={isPlaying}
+                    className={`px-2.5 py-1.5 text-sm rounded-lg transition ${
+                      mode === 'usdt' ? 'bg-green-500 text-white' : 'text-white hover:bg-white/10'
+                    }`}
+                  >
+                    USDT
+                  </button>
+                )}
+              </div>
+
+              {user?.type === 'registered' && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate('/deposit')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1"
+                  >
+                    Deposit
+                  </button>
+                  <button
+                    onClick={() => navigate('/withdraw')}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1"
+                  >
+                    Withdraw
+                  </button>
+                </div>
               )}
             </div>
 

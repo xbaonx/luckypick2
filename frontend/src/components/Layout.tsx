@@ -119,20 +119,10 @@ export default function Layout() {
                       <span>{user.balanceFun.toFixed(0)} Fun</span>
                     </div>
                     {user.type === 'registered' && (
-                      <>
-                        <div className="bg-green-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
-                          <CurrencyDollarIcon className="h-4 w-4" />
-                          <span>{user.balanceUsdt.toFixed(2)} USDT</span>
-                        </div>
-                        <Link to="/deposit" className="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg text-xs inline-flex items-center gap-1">
-                          <BanknotesIcon className="h-4 w-4" />
-                          <span>Deposit</span>
-                        </Link>
-                        <Link to="/withdraw" className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-xs inline-flex items-center gap-1">
-                          <ArrowUpCircleIcon className="h-4 w-4" />
-                          <span>Withdraw</span>
-                        </Link>
-                      </>
+                      <div className="bg-green-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                        <CurrencyDollarIcon className="h-4 w-4" />
+                        <span>{user.balanceUsdt.toFixed(2)} USDT</span>
+                      </div>
                     )}
                   </div>
                   <Link to="/profile" className="hover:text-yellow-400">
@@ -172,20 +162,10 @@ export default function Layout() {
                   <span>{user.balanceFun.toFixed(0)} Fun</span>
                 </div>
                 {user.type === 'registered' && (
-                  <>
-                    <div className="bg-green-500/20 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
-                      <CurrencyDollarIcon className="h-5 w-5" />
-                      <span>{user.balanceUsdt.toFixed(2)} USDT</span>
-                    </div>
-                    <Link to="/deposit" className="bg-blue-600/90 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg text-xs inline-flex items-center gap-1">
-                      <BanknotesIcon className="h-4 w-4" />
-                      <span>Deposit</span>
-                    </Link>
-                    <Link to="/withdraw" className="bg-emerald-600/90 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs inline-flex items-center gap-1">
-                      <ArrowUpCircleIcon className="h-4 w-4" />
-                      <span>Withdraw</span>
-                    </Link>
-                  </>
+                  <div className="bg-green-500/20 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5">
+                    <CurrencyDollarIcon className="h-5 w-5" />
+                    <span>{user.balanceUsdt.toFixed(2)} USDT</span>
+                  </div>
                 )}
               </div>
             </div>
