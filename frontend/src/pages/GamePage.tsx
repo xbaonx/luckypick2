@@ -345,15 +345,17 @@ export default function GamePage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => navigate('/deposit')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"
                   >
-                    Deposit
+                    <BanknotesIcon className="h-4 w-4" />
+                    <span>Deposit</span>
                   </button>
                   <button
                     onClick={() => navigate('/withdraw')}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5"
                   >
-                    Withdraw
+                    <ArrowUpCircleIcon className="h-4 w-4" />
+                    <span>Withdraw</span>
                   </button>
                 </div>
               )}
