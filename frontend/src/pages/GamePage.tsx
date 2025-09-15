@@ -88,6 +88,7 @@ export default function GamePage() {
 
   const [bulkAmount, setBulkAmount] = useState<number>(defaultBetAmount)
   const [replaceMode, setReplaceMode] = useState<boolean>(false)
+  const [showTools, setShowTools] = useState<boolean>(false)
 
   useEffect(() => {
     // Resolve mode from route; default to 'fun' if invalid
@@ -209,6 +210,7 @@ export default function GamePage() {
             />
           )}
         </div>
+        )
       )
     }
     return numbers
@@ -379,10 +381,19 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Default Bet moved inline below as compact control */}
+        {/* Tools Toggle */}
+        <div className="mb-3.5">
+          <button
+            onClick={() => setShowTools(v => !v)}
+            className="w-full flex items-center justify-between bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg px-3 py-2 text-sm transition"
+          >
+            <span className="font-medium">Bet Tools</span>
+            <span className={`transition-transform ${showTools ? 'rotate-180' : ''}`}>▾</span>
+          </button>
+        </div>
 
-        {/* Result modal removed to prioritize loading overlay */}
-        {/* Mobile-optimized Selection toolbar */}
+        {/* Collapsible: Bulk Amount + Quick tools */}
+        {showTools && (
         <div className="mb-3.5 space-y-3">
           {/* Bulk Amount Control - Mobile First */}
           <div className="bg-white/10 rounded-lg p-3">
