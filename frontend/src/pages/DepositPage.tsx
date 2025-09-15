@@ -9,32 +9,7 @@ export default function DepositPage() {
   const [amountInr, setAmountInr] = useState('1500')
   const [loading] = useState(false)
 
-  const handleMoonPayDeposit = () => {
-    if (!user?.walletAddress) {
-      toast.error('Wallet address not found')
-      return
-    }
-    // Copy wallet address so user can paste it in MoonPay
-    try {
-      navigator.clipboard?.writeText(user.walletAddress)
-      toast.success('Copied your wallet address. Paste it in MoonPay when asked.')
-    } catch {}
-
-    // Use MoonPay consumer link in the requested format (no apiKey):
-    // https://buy.moonpay.com/?currencyCode=usdt_bsc&baseCurrencyCode=usd&baseCurrencyAmount=...
-    // User will paste their wallet address manually during checkout.
-    const params = new URLSearchParams({
-      currencyCode: 'usdt_bsc', // USDT on BSC (BEP-20)
-      baseCurrencyCode: 'usd',
-      baseCurrencyAmount: amount,
-    })
-    const moonPayUrl = `https://buy.moonpay.com/?${params.toString()}`
-    
-    // Open MoonPay in new window
-    window.open(moonPayUrl, '_blank', 'width=600,height=800')
-    
-    toast.success('MoonPay window opened. Complete your purchase there.')
-  }
+  // MoonPay integration removed by request
 
   const handleCopyAddress = async () => {
     if (!user?.walletAddress) return
@@ -139,7 +114,7 @@ export default function DepositPage() {
 
       <div className="glass-effect rounded-2xl p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">Deposit USDT (USD)</h2>
-        <p className="mb-4 text-gray-300">Choose a USD provider below. Network: <b>BSC (BEP‑20)</b>.</p>
+        <p className="mb-4 text-gray-300">Use Transak below. Network: <b>BSC (BEP‑20)</b>.</p>
         
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Amount (USD)</label>
@@ -169,14 +144,7 @@ export default function DepositPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <button
-            onClick={handleMoonPayDeposit}
-            disabled={loading || !amount || Number(amount) < 30}
-            className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 py-3 rounded-lg font-bold transition"
-          >
-            Deposit via MoonPay (USD)
-          </button>
+        <div className="grid grid-cols-1 gap-2">
           <button
             onClick={handleTransakUsdDeposit}
             disabled={loading || !amount || Number(amount) < 30}
@@ -222,13 +190,13 @@ export default function DepositPage() {
         <ol className="space-y-3">
           <li className="flex items-start">
             <span className="text-yellow-400 font-bold mr-2">1.</span>
-            <span>Click “Deposit USDT with MoonPay”. We’ll open MoonPay in a new tab with USDT (BEP‑20) and your USD amount prefilled.</span>
+            <span>Click “Deposit via Transak (USD)” or “Deposit via UPI (Transak)”. We’ll open Transak in a new tab with USDT (BEP‑20) and your amount prefilled.</span>
           </li>
         </ol>
         <ol className="space-y-3 mt-2">
           <li className="flex items-start">
             <span className="text-yellow-400 font-bold mr-2">2.</span>
-            <span>Paste your deposit address when asked (you can also use the Copy button above).</span>
+            <span>Confirm your deposit address (it is prefilled and locked).</span>
           </li>
           <li className="flex items-start">
             <span className="text-yellow-400 font-bold mr-2">3.</span>

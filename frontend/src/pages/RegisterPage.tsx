@@ -48,7 +48,7 @@ export default function RegisterPage() {
           <ul className="text-sm space-y-1">
             <li>✅ Play with real USDT</li>
             <li>✅ 70x payout on wins</li>
-            <li>✅ Deposit via MoonPay</li>
+            <li>✅ Deposit via Transak</li>
             <li>✅ Instant withdrawals</li>
             <li>✅ Personal wallet address</li>
           </ul>

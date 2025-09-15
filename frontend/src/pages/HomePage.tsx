@@ -64,7 +64,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-4 text-green-400">Play with USDT</h2>
             <ul className="text-left space-y-2 mb-6">
               <li>✅ Real money gaming</li>
-              <li>✅ Deposit via MoonPay</li>
+              <li>✅ Deposit via Transak</li>
               <li>✅ Win rate: 1% (1/100)</li>
               <li>✅ Payout: 70x your bet</li>
               <li>✅ Instant withdrawals</li>

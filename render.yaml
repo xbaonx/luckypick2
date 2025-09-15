@@ -21,10 +21,6 @@ services:
         fromGroup: luckypick2
       - key: JWT_SECRET
         generateValue: true
-      - key: MOONPAY_API_KEY
-        fromGroup: luckypick2
-      - key: MOONPAY_SECRET_KEY
-        fromGroup: luckypick2
       - key: ADMIN_EMAIL
         value: admin@luckypick2.com
       - key: ADMIN_PASSWORD
@@ -43,9 +39,5 @@ envVarGroups:
         value: YOUR_ADMIN_WALLET_ADDRESS
       - key: SECRET_KEY
         value: YOUR_32_CHAR_SECRET_KEY_FOR_ENCRYPTION
-      - key: MOONPAY_API_KEY
-        value: YOUR_MOONPAY_API_KEY
-      - key: MOONPAY_SECRET_KEY
-        value: YOUR_MOONPAY_SECRET_KEY
       - key: ADMIN_PASSWORD
         value: YOUR_SECURE_ADMIN_PASSWORD

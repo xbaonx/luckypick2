@@ -8,7 +8,7 @@ A full-stack web application for Lucky Pick 2 gaming with FunCoin and USDT suppo
 - **Guest Mode**: Play with 1000 free FunCoins
 - **Registered Mode**: Play with real USDT
 - **Lucky Pick 2 Game**: Select numbers 00-99 and win big
-- **MoonPay Integration**: Easy USDT deposits
+- **Transak Integration**: Easy USDT deposits
 - **Instant Withdrawals**: Cash out winnings to any wallet
 - **Game History**: Track all your games
 
@@ -24,7 +24,7 @@ A full-stack web application for Lucky Pick 2 gaming with FunCoin and USDT suppo
 - **Backend**: NestJS, TypeScript, TypeORM, SQLite
 - **Frontend**: React, Vite, TailwindCSS, Zustand
 - **Blockchain**: Binance Smart Chain, ethers.js
-- **Payment**: MoonPay integration
+- **Payment**: Transak integration
 - **Security**: AES-256 encryption, JWT authentication
 
 ## 📋 Prerequisites
@@ -32,7 +32,7 @@ A full-stack web application for Lucky Pick 2 gaming with FunCoin and USDT suppo
 - Node.js 18+
 - npm or yarn
 - BSC wallet with admin privileges
-- MoonPay account (for USDT deposits)
+- Transak (or other on-ramp) account if needed for USDT deposits
 
 ## 🛠️ Installation
 
@@ -71,9 +71,7 @@ SECRET_KEY=your-secret-key-for-encryption-32chars
 # JWT
 JWT_SECRET=your-jwt-secret-key
 
-# MoonPay
-MOONPAY_API_KEY=your-moonpay-api-key
-MOONPAY_SECRET_KEY=your-moonpay-secret-key
+# MoonPay removed
 
 # Admin
 ADMIN_EMAIL=admin@luckypick2.com
@@ -215,8 +213,7 @@ git push origin main
 Set these in the Render dashboard:
 - `ADMIN_ADDRESS` - Your admin wallet address
 - `SECRET_KEY` - 32+ character encryption key
-- `MOONPAY_API_KEY` - Your MoonPay API key
-- `MOONPAY_SECRET_KEY` - Your MoonPay secret
+  (MoonPay environment variables removed)
 - `ADMIN_PASSWORD` - Secure admin password
 
 ## 📊 Database Schema

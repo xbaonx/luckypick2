@@ -77,7 +77,7 @@ export default function ProfilePage() {
           >
             <div className="text-3xl mb-2">💳</div>
             <h3 className="text-xl font-bold">Deposit USDT</h3>
-            <p className="text-gray-300">Add funds via MoonPay</p>
+            <p className="text-gray-300">Add funds via Transak</p>
           </Link>
           <Link
             to="/withdraw"
