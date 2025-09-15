@@ -21,6 +21,7 @@ import {
   FaceFrownIcon,
   ChevronDownIcon,
   LockClosedIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline'
 
 // A/B Testing CTA variants
@@ -56,6 +57,21 @@ const logCtaMetric = async (action: 'view' | 'click', variant: string, mode: str
   } catch (error) {
     // Silent fail for metrics
     console.warn('Failed to log CTA metric:', error)
+  }
+}
+
+// Log Guide metrics (reuse metrics endpoint)
+const logGuideMetric = async (action: 'view' | 'dismiss' | 'next', step: number, mode: string, userId?: string) => {
+  try {
+    await api.post('/metrics/cta', {
+      name: 'guide_overlay',
+      variant: `v1_step_${step}`,
+      action,
+      mode,
+      userId
+    })
+  } catch (error) {
+    console.warn('Failed to log guide metric:', error)
   }
 }
 
@@ -244,6 +260,56 @@ export default function GamePage() {
   const [digitDisplay, setDigitDisplay] = useState<string[]>(['0', '0'])
   const [overlayReadyDismiss, setOverlayReadyDismiss] = useState(false)
   const [confettiFired, setConfettiFired] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
+  const [guideStep, setGuideStep] = useState(0)
+
+  // First-time guide for likely US users
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem('lp2_guide_v1') === '1'
+      if (seen) return
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+      const lang = (navigator.languages && navigator.languages[0]) || navigator.language || ''
+      const usTzPrefixes = [
+        'America/New_York','America/Detroit','America/Kentucky','America/Indiana','America/Chicago','America/Boise','America/Denver','America/Phoenix','America/Los_Angeles','America/Anchorage','America/Juneau','America/Sitka','America/Nome','Pacific/Honolulu'
+      ]
+      const isUSTz = usTzPrefixes.some(p => tz.startsWith(p))
+      const isUSLang = /en-US/i.test(lang || '')
+      const likelyUS = isUSTz || isUSLang
+      if (likelyUS) {
+        setShowGuide(true)
+        setGuideStep(0)
+        logGuideMetric('view', 0, mode, user?.id)
+      }
+    } catch {}
+  // run only on first mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const openGuide = () => {
+    setShowGuide(true)
+    setGuideStep(0)
+    logGuideMetric('view', 0, mode, user?.id)
+  }
+
+  const handleGuideNext = () => {
+    const next = guideStep + 1
+    if (next >= 3) {
+      // finish
+      localStorage.setItem('lp2_guide_v1', '1')
+      setShowGuide(false)
+      logGuideMetric('dismiss', guideStep, mode, user?.id)
+    } else {
+      setGuideStep(next)
+      logGuideMetric('next', next, mode, user?.id)
+    }
+  }
+
+  const handleGuideSkip = () => {
+    localStorage.setItem('lp2_guide_v1', '1')
+    setShowGuide(false)
+    logGuideMetric('dismiss', guideStep, mode, user?.id)
+  }
 
   // Orchestrate staged digit animation during loading and snap to final
 
@@ -641,6 +707,65 @@ export default function GamePage() {
             {overlayReadyDismiss && (
               <div className="text-white/70 text-xs mt-1">Tap anywhere to dismiss</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Floating help button (reopen guide) */}
+      {!isPlaying && !showGuide && (
+        <button
+          onClick={openGuide}
+          className="fixed bottom-24 right-4 z-[90] bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-2 rounded-full shadow-lg inline-flex items-center gap-1"
+          title="Show quick guide"
+        >
+          <QuestionMarkCircleIcon className="h-5 w-5" />
+          <span className="text-sm">Guide</span>
+        </button>
+      )}
+
+      {/* First-time Guide Overlay (US users) */}
+      {showGuide && (
+        <div className="fixed inset-0 z-[120] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md glass-effect rounded-2xl border border-white/20 p-5 text-white">
+            <div className="text-lg font-semibold mb-2">Quick Start</div>
+            {guideStep === 0 && (
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">1) Mode & Actions</div>
+                <ul className="list-disc list-inside space-y-1 text-white/90">
+                  <li>Choose FunCoin or USDT at the top.</li>
+                  <li>Use Deposit / Withdraw buttons next to the selector.</li>
+                </ul>
+              </div>
+            )}
+            {guideStep === 1 && (
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">2) Pick Numbers & Tools</div>
+                <ul className="list-disc list-inside space-y-1 text-white/90">
+                  <li>Tap numbers to select; enter amount on selected tiles.</li>
+                  <li>Open Bet Tools for Bulk Amount and quick patterns.</li>
+                </ul>
+              </div>
+            )}
+            {guideStep === 2 && (
+              <div className="space-y-2 text-sm">
+                <div className="font-medium">3) Play</div>
+                <ul className="list-disc list-inside space-y-1 text-white/90">
+                  <li>Check Selected and Total at the bottom bar.</li>
+                  <li>Press Play Now to spin. Good luck!</li>
+                </ul>
+              </div>
+            )}
+            <div className="mt-4 flex items-center justify-between">
+              <button onClick={handleGuideSkip} className="text-white/70 hover:text-white text-sm">Skip</button>
+              <div className="flex items-center gap-2">
+                {guideStep > 0 && (
+                  <button onClick={() => setGuideStep(guideStep - 1)} className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-sm">Back</button>
+                )}
+                <button onClick={handleGuideNext} className="px-3 py-1.5 rounded-lg bg-yellow-500 text-black font-semibold text-sm">
+                  {guideStep >= 2 ? 'Got it' : 'Next'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
