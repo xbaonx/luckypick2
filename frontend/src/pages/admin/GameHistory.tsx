@@ -13,13 +13,39 @@ export default function AdminGameHistory() {
 
   // Pagination state
   const [page, setPage] = useState(1)
+  const [playerFilter, setPlayerFilter] = useState('')
+  const [modeFilter, setModeFilter] = useState<'all' | 'fun' | 'usdt'>('all')
+  const [dateFrom, setDateFrom] = useState<string>('')
+  const [dateTo, setDateTo] = useState<string>('')
   const pageSize = 20
-  const total = games?.length || 0
+  const normalized = useMemo(() => {
+    const list = games || []
+    const term = playerFilter.trim().toLowerCase()
+    const fromTs = dateFrom ? new Date(dateFrom + 'T00:00:00').getTime() : null
+    const toTs = dateTo ? new Date(dateTo + 'T23:59:59').getTime() : null
+    return list.filter((g: any) => {
+      // text filter
+      if (term) {
+        const email = (g.user?.email || '').toLowerCase()
+        const userId = (g.userId || '').toLowerCase()
+        if (!email.includes(term) && !userId.includes(term)) return false
+      }
+      // mode filter
+      if (modeFilter !== 'all' && g.mode !== modeFilter) return false
+      // date range filter
+      const ts = new Date(g.createdAt).getTime()
+      if (fromTs && ts < fromTs) return false
+      if (toTs && ts > toTs) return false
+      return true
+    })
+  }, [games, playerFilter, modeFilter, dateFrom, dateTo])
+
+  const total = normalized.length || 0
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   const current = Math.min(page, pageCount)
   const visible = useMemo(() => {
-    return (games || []).slice((current - 1) * pageSize, current * pageSize)
-  }, [games, current])
+    return (normalized || []).slice((current - 1) * pageSize, current * pageSize)
+  }, [normalized, current])
 
   useEffect(() => {
     setPage(1)
@@ -34,9 +60,42 @@ export default function AdminGameHistory() {
       <h1 className="text-3xl font-bold mb-8">Game History</h1>
 
       <div className="glass-effect rounded-xl p-6">
-        <h2 className="text-xl font-bold mb-4">All Games</h2>
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <h2 className="text-xl font-bold">All Games</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={modeFilter}
+              onChange={(e) => { setModeFilter(e.target.value as any); setPage(1) }}
+              className="bg-black/40 text-white px-3 py-2 rounded-lg border border-white/10 focus:border-yellow-400 outline-none text-sm"
+            >
+              <option value="all">All modes</option>
+              <option value="fun">Fun</option>
+              <option value="usdt">USDT</option>
+            </select>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setPage(1) }}
+              className="bg-black/40 text-white px-3 py-2 rounded-lg border border-white/10 focus:border-yellow-400 outline-none text-sm"
+            />
+            <span className="text-white/60 text-sm">to</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setPage(1) }}
+              className="bg-black/40 text-white px-3 py-2 rounded-lg border border-white/10 focus:border-yellow-400 outline-none text-sm"
+            />
+            <input
+              type="text"
+              value={playerFilter}
+              onChange={(e) => { setPlayerFilter(e.target.value); setPage(1) }}
+              placeholder="Filter by email or user ID"
+              className="bg-black/40 text-white px-3 py-2 rounded-lg border border-white/10 focus:border-yellow-400 outline-none text-sm min-w-[260px]"
+            />
+          </div>
+        </div>
         
-        {games && games.length > 0 ? (
+        {normalized && normalized.length > 0 ? (
           <div className="overflow-x-auto">
             {/* Top Pagination */}
             <div className="flex items-center justify-between mb-2 text-sm bg-white/5 rounded-lg px-3 py-2">
