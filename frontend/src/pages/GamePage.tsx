@@ -17,7 +17,6 @@ import {
   AdjustmentsVerticalIcon,
   PlayCircleIcon,
   BanknotesIcon,
-  CreditCardIcon,
   TrophyIcon,
   FaceFrownIcon,
   ChevronDownIcon,
@@ -343,41 +342,7 @@ export default function GamePage() {
 
             
 
-            {/* Mode banners & CTAs - Mobile Optimized */}
-            {mode === 'fun' && (
-              <div className="bg-yellow-500/15 border-l-4 border-yellow-500 rounded-lg p-3 w-full">
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm text-yellow-200 flex items-center gap-2">
-                    <SparklesIcon className="h-4 w-4" />
-                    <span>You're in Fun mode (Demo)</span>
-                  </span>
-                  <button
-                    onClick={() => navigate('/game/usdt')}
-                    className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    <BanknotesIcon className="h-5 w-5" />
-                    <span>Play with real USDT</span>
-                  </button>
-                </div>
-              </div>
-            )}
-            {mode === 'usdt' && user?.type === 'registered' && (user?.balanceUsdt ?? 0) < Math.max(1, defaultBetAmount) && (
-              <div className="bg-red-500/15 border-l-4 border-red-500 rounded-lg p-3 w-full">
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm text-red-200 flex items-center gap-2">
-                    <XMarkIcon className="h-4 w-4" />
-                    <span>Low USDT balance</span>
-                  </span>
-                  <button
-                    onClick={() => navigate('/deposit')}
-                    className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    <CreditCardIcon className="h-5 w-5" />
-                    <span>Deposit USDT</span>
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Mode banners removed per request */}
           </div>
         </div>
 
