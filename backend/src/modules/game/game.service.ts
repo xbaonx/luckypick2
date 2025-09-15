@@ -169,12 +169,64 @@ export class GameService {
     });
   }
 
-  async getAllGameHistory(limit: number = 100) {
-    return await this.gameHistoryRepository.find({
-      order: { createdAt: 'DESC' },
-      take: limit,
-      relations: ['user'],
-    });
+  async getAllGameHistory(
+    opts: number | {
+      q?: string;
+      mode?: GameMode;
+      from?: number; // timestamp ms
+      to?: number;   // timestamp ms
+      sortBy?: 'date' | 'totalBet' | 'winAmount';
+      sortDir?: 'asc' | 'desc';
+      page: number;
+      pageSize: number;
+    } = 100
+  ) {
+    // Backward compatible path when a number limit is provided
+    if (typeof opts === 'number') {
+      const limit = opts || 100
+      return await this.gameHistoryRepository.find({
+        order: { createdAt: 'DESC' },
+        take: limit,
+        relations: ['user'],
+      })
+    }
+
+    const { q, mode, from, to, sortBy, sortDir, page, pageSize } = opts
+    const qb = this.gameHistoryRepository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.user', 'user')
+      .orderBy('game.createdAt', 'DESC')
+
+    if (q) {
+      const term = `%${q.toLowerCase()}%`
+      qb.andWhere('(LOWER(user.email) LIKE :term OR LOWER(game.userId) LIKE :term)', { term })
+    }
+    if (mode) {
+      qb.andWhere('game.mode = :mode', { mode })
+    }
+    if (from) {
+      qb.andWhere('game.createdAt >= :from', { from: new Date(from) })
+    }
+    if (to) {
+      qb.andWhere('game.createdAt <= :to', { to: new Date(to) })
+    }
+
+    // Sorting
+    const dir = (sortDir || 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC'
+    if (sortBy === 'totalBet') {
+      qb.orderBy('game.totalBet', dir as any)
+    } else if (sortBy === 'winAmount') {
+      qb.orderBy('game.winAmount', dir as any)
+    } else if (sortBy === 'date') {
+      qb.orderBy('game.createdAt', dir as any)
+    }
+
+    const skip = (Math.max(1, page) - 1) * Math.max(1, pageSize)
+    qb.skip(skip).take(Math.max(1, pageSize))
+
+    const [items, total] = await qb.getManyAndCount()
+    const pageCount = Math.max(1, Math.ceil(total / Math.max(1, pageSize)))
+    return { items, total, page, pageSize, pageCount }
   }
 
   async getGameStats() {

@@ -3,49 +3,39 @@ import { useEffect, useMemo, useState } from 'react'
 import api from '../../services/api'
 
 export default function AdminGameHistory() {
-  const { data: games, isLoading } = useQuery({
-    queryKey: ['adminGameHistory'],
-    queryFn: async () => {
-      const response = await api.get('/game/all-history?limit=200')
-      return response.data
-    },
-  })
-
-  // Pagination state
-  const [page, setPage] = useState(1)
+  // Filters (server-side)
   const [playerFilter, setPlayerFilter] = useState('')
   const [modeFilter, setModeFilter] = useState<'all' | 'fun' | 'usdt'>('all')
   const [dateFrom, setDateFrom] = useState<string>('')
   const [dateTo, setDateTo] = useState<string>('')
-  const pageSize = 20
-  const normalized = useMemo(() => {
-    const list = games || []
-    const term = playerFilter.trim().toLowerCase()
-    const fromTs = dateFrom ? new Date(dateFrom + 'T00:00:00').getTime() : null
-    const toTs = dateTo ? new Date(dateTo + 'T23:59:59').getTime() : null
-    return list.filter((g: any) => {
-      // text filter
-      if (term) {
-        const email = (g.user?.email || '').toLowerCase()
-        const userId = (g.userId || '').toLowerCase()
-        if (!email.includes(term) && !userId.includes(term)) return false
-      }
-      // mode filter
-      if (modeFilter !== 'all' && g.mode !== modeFilter) return false
-      // date range filter
-      const ts = new Date(g.createdAt).getTime()
-      if (fromTs && ts < fromTs) return false
-      if (toTs && ts > toTs) return false
-      return true
-    })
-  }, [games, playerFilter, modeFilter, dateFrom, dateTo])
 
-  const total = normalized.length || 0
-  const pageCount = Math.max(1, Math.ceil(total / pageSize))
-  const current = Math.min(page, pageCount)
-  const visible = useMemo(() => {
-    return (normalized || []).slice((current - 1) * pageSize, current * pageSize)
-  }, [normalized, current])
+  // Pagination (server-side)
+  const [page, setPage] = useState(1)
+  const pageSize = 20
+
+  const params = useMemo(() => {
+    const q = playerFilter.trim()
+    const query: any = { page, pageSize }
+    if (q) query.q = q
+    if (modeFilter !== 'all') query.mode = modeFilter
+    if (dateFrom) query.from = dateFrom
+    if (dateTo) query.to = dateTo
+    return query
+  }, [playerFilter, modeFilter, dateFrom, dateTo, page])
+
+  type AdminGamesResponse = { items: any[]; total: number; page: number; pageSize: number; pageCount: number }
+  const { data, isLoading } = useQuery<AdminGamesResponse>({
+    queryKey: ['adminGameHistory', params],
+    queryFn: async () => {
+      const response = await api.get('/game/all-history', { params })
+      return response.data as AdminGamesResponse
+    },
+  })
+
+  const total = data?.total || 0
+  const pageCount = data?.pageCount || 1
+  const current = data?.page || page
+  const visible = data?.items || []
 
   useEffect(() => {
     setPage(1)
@@ -95,7 +85,7 @@ export default function AdminGameHistory() {
           </div>
         </div>
         
-        {normalized && normalized.length > 0 ? (
+        {visible && visible.length > 0 ? (
           <div className="overflow-x-auto">
             {/* Top Pagination */}
             <div className="flex items-center justify-between mb-2 text-sm bg-white/5 rounded-lg px-3 py-2">

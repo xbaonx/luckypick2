@@ -4,8 +4,9 @@ import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 
 export default function DepositPage() {
-  const { user } = useAuthStore()
+  const { user, refreshProfile } = useAuthStore()
   const [amount, setAmount] = useState('100')
+  const [amountInr, setAmountInr] = useState('1500')
   const [loading] = useState(false)
 
   const handleMoonPayDeposit = () => {
@@ -43,6 +44,35 @@ export default function DepositPage() {
     } catch (e) {
       toast.error('Failed to copy address')
     }
+  }
+
+  const buildOnmetaUrl = (address: string, inr?: string) => {
+    const params = new URLSearchParams()
+    params.set('crypto', 'USDT')
+    params.set('network', 'bsc')
+    params.set('fiat', 'INR')
+    params.set('address', address)
+    if (inr && Number(inr) > 0) params.set('amount', inr)
+    // Hint for payment method; if unsupported it's ignored by provider
+    params.set('paymentMethod', 'UPI')
+    return `https://onmeta.in/ramp?${params.toString()}`
+  }
+
+  const handleOnmetaDeposit = async () => {
+    let address = user?.walletAddress
+    if (!address) {
+      try {
+        await refreshProfile()
+        address = useAuthStore.getState().user?.walletAddress
+      } catch {}
+    }
+    if (!address) {
+      toast.error('Wallet address not found. Please try again after profile refresh.')
+      return
+    }
+    const url = buildOnmetaUrl(address, amountInr)
+    window.open(url, '_blank', 'noopener,noreferrer')
+    toast.success('Opening Onmeta in a new tab...')
   }
 
   if (!user || user.type !== 'registered') return null
@@ -109,6 +139,36 @@ export default function DepositPage() {
           className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 py-3 rounded-lg font-bold transition"
         >
           Deposit USDT with MoonPay
+        </button>
+      </div>
+
+      {/* INR via UPI (Onmeta) */}
+      <div className="glass-effect rounded-2xl p-6 mb-6 border border-purple-400/30">
+        <h2 className="text-xl font-bold mb-2">Deposit via UPI (Onmeta)</h2>
+        <p className="text-gray-300 text-sm mb-3">
+          Network: <b>BSC (BEP‑20)</b>. Do not change your wallet address on the provider page.
+        </p>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Amount (INR)</label>
+          <div className="flex gap-2 mb-2">
+            {['1000','1500','2500','5000'].map((v) => (
+              <button key={v} onClick={() => setAmountInr(v)} className={`px-3 py-1.5 rounded-lg text-sm ${amountInr===v? 'bg-primary text-white':'bg-white/10 hover:bg-white/20'}`}>{v}</button>
+            ))}
+          </div>
+          <input
+            type="number"
+            value={amountInr}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmountInr(e.target.value)}
+            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:border-yellow-400"
+            placeholder="Enter amount in INR"
+            min="100"
+          />
+        </div>
+        <button
+          onClick={handleOnmetaDeposit}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-lg font-bold transition"
+        >
+          Deposit via UPI (Onmeta)
         </button>
       </div>
 
