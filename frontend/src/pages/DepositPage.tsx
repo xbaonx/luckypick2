@@ -84,6 +84,35 @@ export default function DepositPage() {
     toast.success('Opening Transak in a new tab...')
   }
 
+  const buildTransakUsdUrl = (address: string, usd?: string) => {
+    const params = new URLSearchParams()
+    params.set('cryptoCurrencyCode', 'USDT')
+    params.set('network', 'BNB')
+    params.set('fiatCurrency', 'USD')
+    if (usd && Number(usd) > 0) params.set('defaultFiatAmount', usd)
+    params.set('walletAddress', address)
+    params.set('disableWalletAddressForm', 'true')
+    params.set('productsAvailed', 'BUY')
+    return `https://global.transak.com/?${params.toString()}`
+  }
+
+  const handleTransakUsdDeposit = async () => {
+    let address = user?.walletAddress
+    if (!address) {
+      try {
+        await refreshProfile()
+        address = useAuthStore.getState().user?.walletAddress
+      } catch {}
+    }
+    if (!address) {
+      toast.error('Wallet address not found. Please try again after profile refresh.')
+      return
+    }
+    const url = buildTransakUsdUrl(address, amount)
+    window.open(url, '_blank', 'noopener,noreferrer')
+    toast.success('Opening Transak in a new tab...')
+  }
+
   if (!user || user.type !== 'registered') return null
 
   return (
@@ -109,10 +138,8 @@ export default function DepositPage() {
       </div>
 
       <div className="glass-effect rounded-2xl p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Deposit USDT with MoonPay</h2>
-        <p className="mb-4 text-gray-300">
-          We will open MoonPay with USDT (BEP-20) and your USD amount prefilled. Paste your deposit address when asked.
-        </p>
+        <h2 className="text-xl font-bold mb-4">Deposit USDT (USD)</h2>
+        <p className="mb-4 text-gray-300">Choose a USD provider below. Network: <b>BSC (BEP‑20)</b>.</p>
         
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Amount (USD)</label>
@@ -142,13 +169,22 @@ export default function DepositPage() {
           />
         </div>
 
-        <button
-          onClick={handleMoonPayDeposit}
-          disabled={loading || !amount || Number(amount) < 30}
-          className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 py-3 rounded-lg font-bold transition"
-        >
-          Deposit USDT with MoonPay
-        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <button
+            onClick={handleMoonPayDeposit}
+            disabled={loading || !amount || Number(amount) < 30}
+            className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 py-3 rounded-lg font-bold transition"
+          >
+            Deposit via MoonPay (USD)
+          </button>
+          <button
+            onClick={handleTransakUsdDeposit}
+            disabled={loading || !amount || Number(amount) < 30}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 py-3 rounded-lg font-bold transition"
+          >
+            Deposit via Transak (USD)
+          </button>
+        </div>
       </div>
 
       {/* INR via UPI (Transak) */}
