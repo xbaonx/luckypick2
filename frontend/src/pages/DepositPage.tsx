@@ -46,35 +46,7 @@ export default function DepositPage() {
     }
   }
 
-  const buildOnmetaUrl = (address: string, inr?: string) => {
-    const params = new URLSearchParams()
-    params.set('crypto', 'USDT')
-    params.set('network', 'bsc')
-    params.set('fiat', 'INR')
-    params.set('address', address)
-    if (inr && Number(inr) > 0) params.set('amount', inr)
-    // Hint for payment method; if unsupported it's ignored by provider
-    params.set('paymentMethod', 'UPI')
-    // Use app subdomain which serves the ramp widget
-    return `https://app.onmeta.in/ramp?${params.toString()}`
-  }
-
-  const handleOnmetaDeposit = async () => {
-    let address = user?.walletAddress
-    if (!address) {
-      try {
-        await refreshProfile()
-        address = useAuthStore.getState().user?.walletAddress
-      } catch {}
-    }
-    if (!address) {
-      toast.error('Wallet address not found. Please try again after profile refresh.')
-      return
-    }
-    const url = buildOnmetaUrl(address, amountInr)
-    window.open(url, '_blank', 'noopener,noreferrer')
-    toast.success('Opening Onmeta in a new tab...')
-  }
+  // Onmeta integration removed per request; Transak only
 
   const buildTransakUrl = (address: string, inr?: string) => {
     // Transak consumer link
@@ -179,12 +151,11 @@ export default function DepositPage() {
         </button>
       </div>
 
-      {/* INR via UPI (Onmeta) */}
+      {/* INR via UPI (Transak) */}
       <div className="glass-effect rounded-2xl p-6 mb-6 border border-purple-400/30">
-        <h2 className="text-xl font-bold mb-2">Deposit via UPI (Onmeta)</h2>
+        <h2 className="text-xl font-bold mb-2">Deposit via UPI (Transak)</h2>
         <p className="text-gray-300 text-sm mb-3">
           Network: <b>BSC (BEP‑20)</b>. Do not change your wallet address on the provider page.
-          If the provider page shows an error, please try the alternative provider below.
         </p>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Amount (INR)</label>
@@ -203,15 +174,8 @@ export default function DepositPage() {
           />
         </div>
         <button
-          onClick={handleOnmetaDeposit}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-lg font-bold transition"
-        >
-          Deposit via UPI (Onmeta)
-        </button>
-        <div className="mt-2 text-center text-xs text-white/70">or</div>
-        <button
           onClick={handleTransakDeposit}
-          className="mt-2 w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition"
+          className="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition"
         >
           Deposit via UPI (Transak)
         </button>
