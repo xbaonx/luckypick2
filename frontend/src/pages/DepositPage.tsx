@@ -77,15 +77,20 @@ export default function DepositPage() {
   }
 
   const buildTransakUrl = (address: string, inr?: string) => {
-    // Transak global consumer link (apiKey optional for basic flows). Prefill wallet address and INR amount.
+    // Transak consumer link
     const params = new URLSearchParams()
-    params.set('cryptoCurrency', 'USDT')
-    params.set('network', 'BSC')
+    // Ensure asset and network lock to USDT on BNB Smart Chain
+    params.set('cryptoCurrencyCode', 'USDT')
+    params.set('network', 'BNB')
+    // Fiat preset
     params.set('fiatCurrency', 'INR')
+    if (inr && Number(inr) > 0) params.set('defaultFiatAmount', inr)
+    // Lock address field
     params.set('walletAddress', address)
-    if (inr && Number(inr) > 0) params.set('fiatAmount', inr)
     params.set('disableWalletAddressForm', 'true')
-    // Payment method hint (may be ignored depending on availability)
+    // Explicitly set flow to BUY
+    params.set('productsAvailed', 'BUY')
+    // Hint for UPI (Transak may ignore based on geo/availability)
     params.set('paymentMethod', 'upi')
     return `https://global.transak.com/?${params.toString()}`
   }

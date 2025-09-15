@@ -268,8 +268,6 @@ export default function GamePage() {
   const [guideStep, setGuideStep] = useState(0)
   const [showInsufficientUsdt, setShowInsufficientUsdt] = useState(false)
   const [neededUsdt, setNeededUsdt] = useState<number | null>(null)
-  const stickyRef = useRef<HTMLDivElement | null>(null)
-  const [guideBottom, setGuideBottom] = useState<number>(128)
 
   // First-time guide for likely US users
   useEffect(() => {
@@ -318,26 +316,6 @@ export default function GamePage() {
     setShowGuide(false)
     logGuideMetric('dismiss', guideStep, mode, user?.id)
   }
-
-  // Auto position floating guide button above sticky bottom bar
-  useEffect(() => {
-    const update = () => {
-      const h = stickyRef.current?.offsetHeight || 0
-      // 16px margin above bar + 8px extra for safety
-      setGuideBottom(h + 24)
-    }
-    update()
-    let ro: ResizeObserver | null = null
-    if (stickyRef.current && 'ResizeObserver' in window) {
-      ro = new ResizeObserver(update)
-      ro.observe(stickyRef.current)
-    }
-    window.addEventListener('resize', update)
-    return () => {
-      window.removeEventListener('resize', update)
-      if (ro && stickyRef.current) ro.disconnect()
-    }
-  }, [])
 
   // Orchestrate staged digit animation during loading and snap to final
 
@@ -640,7 +618,7 @@ export default function GamePage() {
       </div>
 
       {/* Sticky Bottom Controls (mobile-first, always on) */}
-      <div ref={stickyRef} className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
+      <div className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
         <div className="px-4">
           <div className="backdrop-blur-md bg-black/70 rounded-t-2xl border-t border-white/20 p-4">
             <div className="flex items-center justify-between text-sm mb-3">
@@ -787,8 +765,7 @@ export default function GamePage() {
       {!isPlaying && !showGuide && (
         <button
           onClick={openGuide}
-          className="fixed left-4 md:left-auto md:right-4 z-[90] bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-2 rounded-full shadow-lg inline-flex items-center gap-1"
-          style={{ bottom: guideBottom }}
+          className="fixed bottom-40 left-4 sm:bottom-32 md:bottom-24 md:left-auto md:right-4 z-[90] bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-2 rounded-full shadow-lg inline-flex items-center gap-1"
           title="Show quick guide"
         >
           <QuestionMarkCircleIcon className="h-5 w-5" />
