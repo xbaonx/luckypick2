@@ -160,9 +160,13 @@ export default function GamePage() {
       toast.error('Insufficient FunCoin balance')
       return
     }
-    if (mode === 'usdt' && totalBet > (user?.balanceUsdt ?? 0)) {
-      toast.error('Insufficient USDT balance')
-      return
+    if (mode === 'usdt') {
+      const bal = user?.balanceUsdt ?? 0
+      if (totalBet > bal) {
+        setNeededUsdt(Number((totalBet - bal).toFixed(2)))
+        setShowInsufficientUsdt(true)
+        return
+      }
     }
 
     setIsPlaying(true)
@@ -262,6 +266,8 @@ export default function GamePage() {
   const [confettiFired, setConfettiFired] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
   const [guideStep, setGuideStep] = useState(0)
+  const [showInsufficientUsdt, setShowInsufficientUsdt] = useState(false)
+  const [neededUsdt, setNeededUsdt] = useState<number | null>(null)
 
   // First-time guide for likely US users
   useEffect(() => {
@@ -596,7 +602,7 @@ export default function GamePage() {
             </div>
           </div>
         </div>
-        <h4 className="text-sm font-semibold text-white/90 mb-2">Choose your lucky number</h4>
+        <h4 className="text-sm font-semibold text-white/90 mb-2">Pick your lucky numbers</h4>
         <div className="number-grid">
           {renderNumberGrid()}
         </div>
@@ -640,7 +646,8 @@ export default function GamePage() {
         </div>
       </div>
 
-      {/* Spin Modal Overlay with digits */}
+      {/* Spin Modal Overlay with digits */
+      }
       {isPlaying && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => overlayReadyDismiss && setIsPlaying(false)}>
           <div className="w-full max-w-xs text-center select-none">
@@ -708,6 +715,39 @@ export default function GamePage() {
             {overlayReadyDismiss && (
               <div className="text-white/70 text-xs mt-1">Tap anywhere to dismiss</div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Insufficient USDT Overlay */}
+      {showInsufficientUsdt && (
+        <div className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-sm glass-effect rounded-2xl border border-white/20 p-5 text-white">
+            <div className="text-lg font-semibold mb-1">Insufficient USDT</div>
+            <div className="text-white/80 text-sm mb-3">
+              {typeof neededUsdt === 'number' ? (
+                <>You need an extra <span className="font-semibold text-green-300">{neededUsdt.toFixed(2)} USDT</span> to place this bet.</>
+              ) : (
+                <>Your USDT balance is not enough to place this bet.</>
+              )}
+              {typeof user?.balanceUsdt === 'number' && (
+                <div className="mt-1 text-xs text-white/60">Current balance: {user.balanceUsdt.toFixed(2)} USDT</div>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowInsufficientUsdt(false)}
+                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-sm"
+              >
+                Adjust bets
+              </button>
+              <button
+                onClick={() => { setShowInsufficientUsdt(false); navigate('/deposit') }}
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm"
+              >
+                Deposit USDT
+              </button>
+            </div>
           </div>
         </div>
       )}
